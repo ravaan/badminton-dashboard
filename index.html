@@ -1,1600 +1,1266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏸 Badminton Dashboard | Arpit's Sessions</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* Light Theme - Court Inspired */
-            --bg-primary: #F8FAFB;
-            --bg-secondary: #FFFFFF;
-            --bg-card: #FFFFFF;
-            --bg-card-alt: #F0FAF4;
-            --bg-hover: #F1F5F9;
-            
-            /* Court Green Palette */
-            --court-green: #16A34A;
-            --court-green-light: #22C55E;
-            --court-green-dark: #15803D;
-            --court-green-pale: #DCFCE7;
-            --court-green-tint: #F0FDF4;
-            
-            /* Accent Colors */
-            --accent-orange: #F97316;
-            --accent-orange-pale: #FFF7ED;
-            --accent-purple: #8B5CF6;
-            --accent-purple-pale: #F5F3FF;
-            --accent-blue: #3B82F6;
-            --accent-blue-pale: #EFF6FF;
-            --accent-red: #EF4444;
-            --accent-red-pale: #FEF2F2;
-            --accent-yellow: #EAB308;
-            --accent-yellow-pale: #FEFCE8;
-            
-            /* Text */
-            --text-primary: #0F172A;
-            --text-secondary: #475569;
-            --text-muted: #94A3B8;
-            --text-inverse: #FFFFFF;
-            
-            /* Borders & Shadows */
-            --border: #E2E8F0;
-            --border-light: #F1F5F9;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-            --shadow-green: 0 4px 14px -3px rgba(22, 163, 74, 0.25);
-            
-            /* HR Zones */
-            --zone-1: #3B82F6;
-            --zone-2: #22C55E;
-            --zone-3: #EAB308;
-            --zone-4: #F97316;
-            --zone-5: #EF4444;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Header */
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 3rem 2rem;
-            background: linear-gradient(135deg, var(--court-green-tint) 0%, var(--bg-secondary) 100%);
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, var(--court-green-pale) 0%, transparent 70%);
-            opacity: 0.6;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo {
-            font-size: 4.5rem;
-            margin-bottom: 0.75rem;
-            filter: drop-shadow(0 4px 8px rgba(22, 163, 74, 0.2));
-        }
-
-        h1 {
-            font-size: 2.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--court-green-dark) 0%, var(--court-green) 50%, var(--court-green-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.15rem;
-            font-weight: 400;
-        }
-
-        .last-updated {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin-top: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--bg-secondary);
-            padding: 0.5rem 1rem;
-            border-radius: 100px;
-            border: 1px solid var(--border);
-        }
-
-        .last-updated::before {
-            content: '●';
-            color: var(--court-green);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1.25rem;
-            margin-bottom: 2.5rem;
-        }
-
-        @media (max-width: 1200px) {
-            .stats-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-        }
-
-        .stat-card.accent-green::before { background: linear-gradient(90deg, var(--court-green), var(--court-green-light)); }
-        .stat-card.accent-orange::before { background: linear-gradient(90deg, var(--accent-orange), #FB923C); }
-        .stat-card.accent-purple::before { background: linear-gradient(90deg, var(--accent-purple), #A78BFA); }
-        .stat-card.accent-blue::before { background: linear-gradient(90deg, var(--accent-blue), #60A5FA); }
-        .stat-card.accent-red::before { background: linear-gradient(90deg, var(--accent-red), #F87171); }
-
-        .stat-icon {
-            font-size: 1.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .stat-value {
-            font-size: 2.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1.1;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 500;
-            margin-top: 0.25rem;
-        }
-
-        .stat-card.accent-green .stat-value { color: var(--court-green); }
-        .stat-card.accent-orange .stat-value { color: var(--accent-orange); }
-        .stat-card.accent-purple .stat-value { color: var(--accent-purple); }
-        .stat-card.accent-blue .stat-value { color: var(--accent-blue); }
-        .stat-card.accent-red .stat-value { color: var(--accent-red); }
-
-        /* Charts Grid */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        @media (max-width: 1024px) {
-            .charts-grid { grid-template-columns: 1fr; }
-        }
-
-        .chart-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.75rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: box-shadow 0.25s ease;
-        }
-
-        .chart-card:hover {
-            box-shadow: var(--shadow-lg);
-        }
-
-        .chart-card.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-
-        .chart-title-group {
-            flex: 1;
-        }
-
-        .chart-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .chart-commentary {
-            font-size: 0.85rem;
-            font-style: italic;
-            color: var(--text-muted);
-            margin-top: 0.35rem;
-            line-height: 1.5;
-        }
-
-        /* Chart Toggle */
-        .chart-toggle {
-            display: flex;
-            background: var(--bg-primary);
-            border-radius: 8px;
-            padding: 3px;
-            gap: 2px;
-            border: 1px solid var(--border);
-        }
-
-        .toggle-btn {
-            padding: 0.35rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-
-        .toggle-btn:hover {
-            color: var(--text-secondary);
-        }
-
-        .toggle-btn.active {
-            background: var(--court-green);
-            color: var(--text-inverse);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .chart-container {
-            position: relative;
-            height: 280px;
-            margin-top: 1rem;
-        }
-
-        .chart-container.small {
-            height: 240px;
-        }
-
-        /* Fitness Stage Card */
-        .fitness-stage-card {
-            background: var(--bg-card-alt);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2.5rem;
-            border: 1px solid var(--court-green-pale);
-            border-left: 6px solid var(--court-green);
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .fitness-stage-card::before {
-            content: '';
-            position: absolute;
-            top: -30%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, var(--court-green-pale) 0%, transparent 70%);
-            opacity: 0.5;
-        }
-
-        .fitness-stage-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .fitness-stage-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .fitness-stage-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .fitness-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--court-green);
-            color: var(--text-inverse);
-            border-radius: 100px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            box-shadow: var(--shadow-green);
-        }
-
-        .fitness-insights {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .fitness-insights { grid-template-columns: 1fr; }
-        }
-
-        .insight-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .insight-emoji {
-            font-size: 1.25rem;
-            flex-shrink: 0;
-        }
-
-        .insight-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .insight-text strong {
-            color: var(--text-primary);
-        }
-
-        .fitness-summary {
-            padding: 1.25rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .fitness-summary-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--court-green-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-
-        .fitness-summary-text {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        /* Session Cards */
-        .sessions-section {
-            margin-top: 2.5rem;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--text-primary);
-        }
-
-        .session-count {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .sessions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 480px) {
-            .sessions-grid { grid-template-columns: 1fr; }
-        }
-
-        .session-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.75rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .session-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--court-green), var(--court-green-light));
-        }
-
-        .session-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .session-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.25rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .session-date-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .session-date {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .session-time {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        .training-badge {
-            padding: 0.35rem 0.85rem;
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .badge-aerobic {
-            background: var(--court-green-pale);
-            color: var(--court-green-dark);
-        }
-
-        .badge-recovery {
-            background: var(--accent-orange-pale);
-            color: var(--accent-orange);
-        }
-
-        .session-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .session-stat {
-            text-align: center;
-            padding: 0.75rem;
-            background: var(--bg-primary);
-            border-radius: 12px;
-        }
-
-        .session-stat-value {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--court-green);
-        }
-
-        .session-stat-label {
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            font-weight: 500;
-            margin-top: 0.15rem;
-        }
-
-        .session-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.6rem;
-            font-size: 0.875rem;
-        }
-
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px dashed var(--border-light);
-        }
-
-        .detail-label {
-            color: var(--text-muted);
-        }
-
-        .detail-value {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        /* HR Zone Bar */
-        .hr-zone-section {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .hr-zone-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .hr-zone-bar {
-            display: flex;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .hr-zone-bar .zone {
-            transition: width 0.4s ease;
-        }
-
-        .zone-1 { background: linear-gradient(180deg, var(--zone-1), #2563EB); }
-        .zone-2 { background: linear-gradient(180deg, var(--zone-2), #16A34A); }
-        .zone-3 { background: linear-gradient(180deg, var(--zone-3), #CA8A04); }
-        .zone-4 { background: linear-gradient(180deg, var(--zone-4), #EA580C); }
-        .zone-5 { background: linear-gradient(180deg, var(--zone-5), #DC2626); }
-
-        .hr-zone-legend {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 2.5rem 2rem;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            margin-top: 3rem;
-            font-size: 0.9rem;
-        }
-
-        footer a {
-            color: var(--court-green);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        footer a:hover {
-            color: var(--court-green-dark);
-            text-decoration: underline;
-        }
-
-        /* Loading State */
-        .loading {
-            text-align: center;
-            padding: 5rem 2rem;
-            color: var(--text-secondary);
-        }
-
-        .loading-spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid var(--border);
-            border-top-color: var(--court-green);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 1.5rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container { padding: 1rem; }
-            header { padding: 2rem 1.5rem; border-radius: 16px; }
-            h1 { font-size: 2rem; }
-            .logo { font-size: 3.5rem; }
-            .stat-card { padding: 1.25rem; }
-            .stat-value { font-size: 1.75rem; }
-            .chart-card { padding: 1.25rem; }
-            .chart-header { flex-direction: column; gap: 0.75rem; }
-            .chart-toggle { align-self: flex-start; }
-            .fitness-stage-card { padding: 1.5rem; }
-            .session-card { padding: 1.25rem; }
-            .session-stats { gap: 0.5rem; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness — Arpit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #FAFAFA;
+      --surface: #FFFFFF;
+      --border: #E4E4E4;
+      --border-light: #F0F0F0;
+
+      --text-primary: #111111;
+      --text-secondary: #6B7280;
+      --text-muted: #9CA3AF;
+
+      --green: #16A34A;
+      --green-light: #DCFCE7;
+      --green-tint: #F0FDF4;
+
+      --heat-0: #EBEDF0;
+      --heat-1: #9BE9A8;
+      --heat-2: #40C463;
+      --heat-3: #30A14E;
+      --heat-4: #216E39;
+
+      --zone-1: #93C5FD;
+      --zone-2: #6EE7B7;
+      --zone-3: #FDE68A;
+      --zone-4: #FCA5A5;
+      --zone-5: #F87171;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* Header */
+    .header {
+      height: 48px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+
+    .wordmark {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .updated-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Hero Row */
+    .hero-row {
+      display: flex;
+      gap: 48px;
+      padding: 48px 0;
+      opacity: 0;
+      animation: fadeUp 0.4s ease forwards;
+    }
+
+    .stats-column {
+      flex: 0 0 40%;
+    }
+
+    .heatmap-column {
+      flex: 1;
+    }
+
+    .subline {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    /* Heatmap */
+    .heatmap-wrapper {
+      margin-top: 24px;
+    }
+
+    .heatmap-months {
+      display: flex;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-left: 0;
+    }
+
+    .heatmap-month {
+      text-align: left;
+    }
+
+    .heatmap-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-rows: repeat(7, 11px);
+      grid-auto-flow: column;
+      gap: 3px;
+    }
+
+    .heatmap-cell {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .heatmap-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .heatmap-cell:hover .heatmap-tooltip {
+      opacity: 1;
+    }
+
+    .heatmap-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Activity Filter Tabs */
+    .filter-section {
+      padding: 24px 0;
+      border-top: 1px solid var(--border-light);
+      opacity: 0;
+      animation: fadeUp 0.4s ease forwards;
+      animation-delay: 0.1s;
+    }
+
+    .filter-tabs {
+      display: inline-flex;
+      background: #F3F4F6;
+      border-radius: 6px;
+      padding: 2px;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.15s;
+    }
+
+    .filter-tab.active {
+      background: #111;
+      color: #fff;
+    }
+
+    .filter-tab.coming-soon {
+      opacity: 0.4;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* Fitness Stage Card */
+    .stage-card {
+      background: var(--green-tint);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--green);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 24px 0;
+      opacity: 0;
+      animation: fadeUp 0.4s ease forwards;
+      animation-delay: 0.2s;
+    }
+
+    .stage-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .stage-bullets {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+
+    .stage-bullets li {
+      padding: 4px 0;
+      padding-left: 16px;
+      position: relative;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .stage-bullets li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--green);
+    }
+
+    .stage-summary {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* Charts Grid */
+    .charts-section {
+      padding: 32px 0;
+      opacity: 0;
+      animation: fadeUp 0.4s ease forwards;
+      animation-delay: 0.3s;
+    }
+
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .chart-insight {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .chart-toggle {
+      display: inline-flex;
+      background: #F3F4F6;
+      border-radius: 6px;
+      padding: 2px;
+    }
+
+    .toggle-btn {
+      padding: 4px 12px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.15s;
+    }
+
+    .toggle-btn.active {
+      background: #111;
+      color: #fff;
+    }
+
+    .chart-container {
+      height: 200px;
+      position: relative;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    /* Sessions Table */
+    .sessions-section {
+      padding: 32px 0 48px;
+      opacity: 0;
+      animation: fadeUp 0.4s ease forwards;
+      animation-delay: 0.4s;
+    }
+
+    .session-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .session-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .session-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.875rem;
+    }
+
+    .session-table tbody tr[data-id] {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .session-table tbody tr[data-id]:hover {
+      background: var(--bg);
+    }
+
+    .session-table tbody tr.expanded {
+      background: var(--bg);
+    }
+
+    .activity-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.7rem;
+    }
+
+    .session-detail-row td {
+      padding: 24px;
+      background: var(--bg);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .detail-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .detail-value {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 24px 0;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-light);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 767px) {
+      .container {
+        padding: 0 16px;
+      }
+
+      .hero-row {
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      .stats-column {
+        flex: none;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .heatmap-grid {
+        grid-template-rows: repeat(7, 9px);
+        gap: 2px;
+      }
+
+      .heatmap-cell {
+        width: 9px;
+        height: 9px;
+      }
+
+      .detail-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .session-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <div class="logo">🏸</div>
-                <h1>Badminton Dashboard</h1>
-                <p class="subtitle">Track every smash, every rally, every gain</p>
-                <p class="last-updated" id="lastUpdated">Loading...</p>
-            </div>
-        </header>
-
-        <div id="app">
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                <p>Loading session data...</p>
-            </div>
-        </div>
+  <header class="header">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+      <div class="wordmark">Fitness</div>
+      <div class="updated-text" id="updatedText">Updated today</div>
     </div>
+  </header>
 
-    <script>
-        // Color palette for charts
-        const COLORS = {
-            primary: '#16A34A',
-            primaryLight: '#22C55E',
-            primaryPale: '#DCFCE7',
-            secondary: '#8B5CF6',
-            secondaryPale: '#F5F3FF',
-            orange: '#F97316',
-            orangePale: '#FFF7ED',
-            red: '#EF4444',
-            redPale: '#FEF2F2',
-            blue: '#3B82F6',
-            bluePale: '#EFF6FF',
-            yellow: '#EAB308',
-            zones: ['#3B82F6', '#22C55E', '#EAB308', '#F97316', '#EF4444'],
-            text: '#475569',
-            border: '#E2E8F0'
-        };
+  <main class="container">
+    <!-- Hero Row -->
+    <section class="hero-row">
+      <div class="stats-column">
+        <div class="subline">Arpit's training log</div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="statSessions">0</div>
+            <div class="stat-label">Sessions</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="statCalories">0</div>
+            <div class="stat-label">Total Calories</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="statDuration">0</div>
+            <div class="stat-label">Avg Duration</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="statHR">0</div>
+            <div class="stat-label">Avg HR</div>
+          </div>
+        </div>
+      </div>
+      <div class="heatmap-column">
+        <div class="subline">Activity</div>
+        <div class="heatmap-wrapper">
+          <div class="heatmap-months" id="heatmapMonths"></div>
+          <div class="heatmap-scroll">
+            <div class="heatmap-grid" id="heatmapGrid"></div>
+          </div>
+          <div class="heatmap-stats" id="heatmapStats"></div>
+        </div>
+      </div>
+    </section>
 
-        // Chart.js defaults for light theme
-        Chart.defaults.color = '#475569';
-        Chart.defaults.borderColor = '#E2E8F0';
-        Chart.defaults.font.family = "'Inter', sans-serif";
+    <!-- Activity Filter -->
+    <section class="filter-section">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="badminton">🏸 Badminton</button>
+        <button class="filter-tab coming-soon">🚶 Walking · coming soon</button>
+      </div>
+    </section>
 
-        // Store chart instances for toggling
-        const chartInstances = {};
+    <!-- Fitness Stage Card -->
+    <section class="stage-card" id="stageCard">
+      <div class="stage-header">
+        <span class="stage-badge" id="stageBadge">Loading...</span>
+      </div>
+      <ul class="stage-bullets" id="stageBullets"></ul>
+      <p class="stage-summary" id="stageSummary"></p>
+    </section>
 
-        // Format date
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric' 
-            });
+    <!-- Charts -->
+    <section class="charts-section">
+      <div class="section-title">Performance</div>
+      <div class="charts-grid">
+        <!-- Chart 1: Training Load -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Training load</div>
+              <div class="chart-insight" id="insight-load">Loading...</div>
+            </div>
+            <div class="chart-toggle">
+              <button class="toggle-btn active" data-chart="chartLoad" data-type="line">Line</button>
+              <button class="toggle-btn" data-chart="chartLoad" data-type="bar">Bar</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartLoad"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Duration -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Session duration</div>
+              <div class="chart-insight" id="insight-duration">Loading...</div>
+            </div>
+            <div class="chart-toggle">
+              <button class="toggle-btn" data-chart="chartDuration" data-type="line">Line</button>
+              <button class="toggle-btn active" data-chart="chartDuration" data-type="bar">Bar</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartDuration"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 3: Calories -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Calories burned</div>
+              <div class="chart-insight" id="insight-calories">Loading...</div>
+            </div>
+            <div class="chart-toggle">
+              <button class="toggle-btn" data-chart="chartCalories" data-type="line">Line</button>
+              <button class="toggle-btn active" data-chart="chartCalories" data-type="bar">Bar</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartCalories"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 4: HR Zones -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Time in HR zones</div>
+              <div class="chart-insight" id="insight-zones">Loading...</div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartZones"></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--zone-1)"></span>Z1 Warm-up</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--zone-2)"></span>Z2 Easy</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--zone-3)"></span>Z3 Aerobic</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--zone-4)"></span>Z4 Threshold</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--zone-5)"></span>Z5 Max</div>
+          </div>
+        </div>
+
+        <!-- Chart 5: Training Effect -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Training effect</div>
+              <div class="chart-insight" id="insight-te">Loading...</div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartTE"></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Aerobic TE</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--text-muted)"></span>Anaerobic TE</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sessions Table -->
+    <section class="sessions-section">
+      <div class="section-title">Sessions</div>
+      <table class="session-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Duration</th>
+            <th>Calories</th>
+            <th>Avg HR</th>
+            <th>Load</th>
+            <th>Effect</th>
+          </tr>
+        </thead>
+        <tbody id="sessionTableBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      Synced from Garmin · <span id="footerUpdated">Updated today</span>
+    </div>
+  </footer>
+
+  <script>
+    // Chart.js defaults
+    Chart.defaults.font.family = "'DM Sans', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#9CA3AF';
+    Chart.defaults.plugins.legend.display = false;
+    Chart.defaults.scale.grid.color = '#F0F0F0';
+    Chart.defaults.scale.grid.drawBorder = false;
+    Chart.defaults.elements.bar.borderRadius = 4;
+    Chart.defaults.elements.bar.borderWidth = 0;
+    Chart.defaults.elements.line.tension = 0.35;
+    Chart.defaults.elements.point.radius = 4;
+    Chart.defaults.elements.point.hoverRadius = 6;
+    Chart.defaults.elements.point.backgroundColor = '#16A34A';
+
+    // Global state
+    let allSessions = [];
+    let filteredSessions = [];
+    const chartConfigs = {};
+    const chartInstances = {};
+
+    // Utility functions
+    function formatShortDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function formatNumber(num) {
+      return new Intl.NumberFormat().format(num);
+    }
+
+    function sortAsc(sessions) {
+      return [...sessions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+
+    // Countup animation
+    function animateValue(el, end, suffix = '') {
+      const duration = 200;
+      const start = 0;
+      const startTime = performance.now();
+      
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = Math.floor(progress * end);
+        el.textContent = formatNumber(value) + suffix;
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    // Insight generators
+    function loadInsight(sessions) {
+      if (!sessions.length) return 'No sessions yet.';
+      const s = sortAsc(sessions);
+      const peak = sessions.reduce((m, x) => x.trainingLoad > m.trainingLoad ? x : m, sessions[0]);
+      const recent = s.slice(-3);
+      const recentAvg = (recent.reduce((t, x) => t + x.trainingLoad, 0) / recent.length).toFixed(1);
+      return `Peak load: ${peak.trainingLoad.toFixed(1)} on ${formatShortDate(peak.date)}. Recent avg: ${recentAvg}.`;
+    }
+
+    function durationInsight(sessions) {
+      if (!sessions.length) return 'No sessions yet.';
+      const s = sortAsc(sessions);
+      const avg = (s.reduce((t, x) => t + x.durationMinutes, 0) / s.length).toFixed(0);
+      if (s.length === 1) return `One session logged: ${avg} min.`;
+      const first = s[0].durationMinutes || 1;
+      const last = s[s.length - 1].durationMinutes;
+      const pct = ((last - first) / first * 100).toFixed(0);
+      return pct > 5
+        ? `Sessions trending longer (+${pct}% since first). Avg ${avg} min.`
+        : pct < -5
+        ? `Sessions getting shorter (${pct}% since first). Avg ${avg} min.`
+        : `Session length is consistent. Avg ${avg} min.`;
+    }
+
+    function caloriesInsight(sessions) {
+      if (!sessions.length) return 'No sessions yet.';
+      const total = sessions.reduce((t, x) => t + x.calories, 0);
+      const best = sessions.reduce((m, x) => x.calories > m.calories ? x : m, sessions[0]);
+      return `${formatNumber(total)} kcal burned total. Best session: ${best.calories} kcal on ${formatShortDate(best.date)}.`;
+    }
+
+    function hrZoneInsight(sessions) {
+      if (!sessions.length) return 'No sessions yet.';
+      const totalZ2 = sessions.reduce((t, x) => t + (x.hrZone2Sec || 0), 0);
+      const totalZ3 = sessions.reduce((t, x) => t + (x.hrZone3Sec || 0), 0);
+      const totalAll = sessions.reduce((t, x) =>
+        t + (x.hrZone1Sec||0) + (x.hrZone2Sec||0) + (x.hrZone3Sec||0) + (x.hrZone4Sec||0) + (x.hrZone5Sec||0), 0);
+      const z23pct = totalAll > 0 ? (((totalZ2 + totalZ3) / totalAll) * 100).toFixed(0) : 0;
+      return `${z23pct}% of court time in zones 2–3 — aerobic base building work.`;
+    }
+
+    function teInsight(sessions) {
+      if (!sessions.length) return 'No sessions yet.';
+      const avgAero = (sessions.reduce((t, x) => t + (x.aerobicTE || 0), 0) / sessions.length).toFixed(1);
+      const avgAna = (sessions.reduce((t, x) => t + (x.anaerobicTE || 0), 0) / sessions.length).toFixed(1);
+      return `Avg aerobic TE ${avgAero}, anaerobic TE ${avgAna}. Aerobic foundation work dominates.`;
+    }
+
+    // Fitness stage computation
+    function computeFitnessStage(sessions) {
+      if (!sessions.length) return { stage: 'No Data', color: '#9CA3AF', bullets: [], summary: 'Add sessions to see your fitness stage.' };
+      
+      const avgLoad = sessions.reduce((t, x) => t + x.trainingLoad, 0) / sessions.length;
+      const s = sortAsc(sessions);
+      const loadTrend = s.length > 2 ? s[s.length - 1].trainingLoad - s[0].trainingLoad : 0;
+      const totalZ4Z5 = sessions.reduce((t, x) => t + (x.hrZone4Sec || 0) + (x.hrZone5Sec || 0), 0);
+      const totalZones = sessions.reduce((t, x) =>
+        t + (x.hrZone1Sec||0) + (x.hrZone2Sec||0) + (x.hrZone3Sec||0) + (x.hrZone4Sec||0) + (x.hrZone5Sec||0), 0);
+      const intensePct = totalZones > 0 ? (totalZ4Z5 / totalZones) * 100 : 0;
+
+      if (avgLoad < 25) return {
+        stage: 'Getting Started',
+        color: '#9CA3AF',
+        bullets: [
+          `Avg training load is low (${avgLoad.toFixed(1)}) — early days, building the habit`,
+          'Sessions mostly in lower HR zones — body still adapting',
+          'Consistency matters more than intensity right now',
+        ],
+        summary: "You're at the start of a fitness journey. The most important thing at this stage is showing up. Two to three sessions a week for four weeks will establish the baseline everything else builds on."
+      };
+
+      if (avgLoad < 50 && intensePct < 5) return {
+        stage: 'Building Aerobic Base',
+        color: '#16A34A',
+        bullets: [
+          `Avg load ${avgLoad.toFixed(1)} — solid aerobic work underway`,
+          `${loadTrend > 0 ? 'Load trending upward' : 'Load is stable'} — ${loadTrend > 0 ? 'progressive overload happening' : 'maintain frequency'}`,
+          'Mostly zone 2–3 work — exactly right for this phase',
+          'Body battery cost is low — recovery is keeping up with training',
+        ],
+        summary: "You're in the aerobic base phase — the most important phase in any sport. The zone 2–3 work you're doing now builds cardiovascular efficiency that compounds into better court speed and endurance over 6–8 weeks. Keep frequency consistent; don't rush intensity."
+      };
+
+      if (avgLoad < 75) return {
+        stage: 'Developing Fitness',
+        color: '#2563EB',
+        bullets: [
+          `Load avg ${avgLoad.toFixed(1)} — fitness foundation is solid`,
+          `${intensePct.toFixed(0)}% of time in zones 4–5 — intensity is growing`,
+          'Aerobic base is established; anaerobic capacity starting to build',
+        ],
+        summary: "Your aerobic base is built. You're now pushing into higher intensity — this is where sport-specific fitness develops. Monitor recovery (body battery, HRV) closely as intensity increases."
+      };
+
+      return {
+        stage: 'Performance Phase',
+        color: '#DC2626',
+        bullets: [
+          `High training load (avg ${avgLoad.toFixed(1)}) — serious training underway`,
+          `${intensePct.toFixed(0)}% in zones 4–5 — consistently high intensity`,
+          'At this level, recovery quality is as important as training quality',
+        ],
+        summary: "You're training at a high level. Prioritise sleep, nutrition and rest days equally with sessions. One poorly timed recovery failure undoes multiple good training blocks."
+      };
+    }
+
+    // Heatmap
+    function heatColor(calories) {
+      if (!calories) return 'var(--heat-0)';
+      if (calories < 300) return 'var(--heat-1)';
+      if (calories < 450) return 'var(--heat-2)';
+      if (calories < 600) return 'var(--heat-3)';
+      return 'var(--heat-4)';
+    }
+
+    function renderHeatmap(sessions) {
+      const grid = document.getElementById('heatmapGrid');
+      const monthsEl = document.getElementById('heatmapMonths');
+      const statsEl = document.getElementById('heatmapStats');
+      grid.innerHTML = '';
+      monthsEl.innerHTML = '';
+
+      const isMobile = window.innerWidth < 768;
+      const weeksToShow = isMobile ? 26 : 52;
+      const daysToShow = weeksToShow * 7;
+
+      // Create session lookup
+      const sessionMap = {};
+      sessions.forEach(s => {
+        if (!sessionMap[s.date]) sessionMap[s.date] = { calories: 0, sessions: [] };
+        sessionMap[s.date].calories += s.calories;
+        sessionMap[s.date].sessions.push(s);
+      });
+
+      // Generate dates
+      const today = new Date();
+      const dates = [];
+      for (let i = daysToShow - 1; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        dates.push(d);
+      }
+
+      // Find first Monday
+      let startIdx = 0;
+      while (dates[startIdx].getDay() !== 1 && startIdx < dates.length) startIdx++;
+
+      // Render cells
+      const displayDates = dates.slice(startIdx);
+      let activeDays = 0;
+      let currentStreak = 0;
+      let tempStreak = 0;
+
+      displayDates.forEach((date, idx) => {
+        const dateStr = date.toISOString().split('T')[0];
+        const dayData = sessionMap[dateStr];
+        const cell = document.createElement('div');
+        cell.className = 'heatmap-cell';
+        cell.style.backgroundColor = heatColor(dayData?.calories);
+
+        if (dayData) {
+          activeDays++;
+          tempStreak++;
+          const dayName = date.toLocaleDateString('en-GB', { weekday: 'short' });
+          const dateFormatted = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+          const activityType = dayData.sessions[0]?.activityType || 'Activity';
+          const tooltip = document.createElement('div');
+          tooltip.className = 'heatmap-tooltip';
+          tooltip.textContent = `${dayName}, ${dateFormatted} · ${activityType.charAt(0).toUpperCase() + activityType.slice(1)} · ${dayData.calories} kcal · ${Math.round(dayData.sessions.reduce((t, s) => t + s.durationMinutes, 0))} min`;
+          cell.appendChild(tooltip);
+        } else {
+          if (idx === displayDates.length - 1 || !sessionMap[displayDates[idx + 1]?.toISOString().split('T')[0]]) {
+            // Check if we should reset streak
+          }
+          if (tempStreak > 0) {
+            currentStreak = tempStreak;
+          }
+          tempStreak = 0;
         }
 
-        // Format short date for charts
-        function formatShortDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
-            });
+        grid.appendChild(cell);
+      });
+
+      if (tempStreak > 0) currentStreak = tempStreak;
+
+      // Month labels
+      const months = [];
+      let lastMonth = -1;
+      displayDates.forEach((date, idx) => {
+        if (date.getDay() === 1 && date.getMonth() !== lastMonth) {
+          const weekIdx = Math.floor(idx / 7);
+          months.push({ name: date.toLocaleDateString('en-GB', { month: 'short' }), pos: weekIdx });
+          lastMonth = date.getMonth();
         }
+      });
 
-        // Format time
-        function formatTime(timeStr) {
-            const parts = timeStr.split(' ')[1];
-            const [hours, minutes] = parts.split(':');
-            const h = parseInt(hours);
-            const ampm = h >= 12 ? 'PM' : 'AM';
-            const h12 = h % 12 || 12;
-            return `${h12}:${minutes} ${ampm}`;
+      const cellSize = isMobile ? 9 : 11;
+      const gap = isMobile ? 2 : 3;
+      months.forEach(m => {
+        const span = document.createElement('span');
+        span.className = 'heatmap-month';
+        span.textContent = m.name;
+        span.style.marginLeft = `${m.pos * (cellSize + gap)}px`;
+        span.style.width = `${4 * (cellSize + gap)}px`;
+        monthsEl.appendChild(span);
+      });
+
+      statsEl.textContent = `${activeDays} active days · Current streak: ${currentStreak} days`;
+    }
+
+    // Charts
+    function createChart(canvasId, type, data, options) {
+      const canvas = document.getElementById(canvasId);
+      const existing = Chart.getChart(canvas);
+      if (existing) existing.destroy();
+      chartConfigs[canvasId] = { data: JSON.parse(JSON.stringify(data)), options };
+      chartInstances[canvasId] = new Chart(canvas, { type, data, options });
+      return chartInstances[canvasId];
+    }
+
+    function toggleChart(canvasId, newType) {
+      const config = chartConfigs[canvasId];
+      if (!config) return;
+      createChart(canvasId, newType, JSON.parse(JSON.stringify(config.data)), config.options);
+    }
+
+    function renderCharts(sessions) {
+      const s = sortAsc(sessions);
+      const labels = s.map(x => new Date(x.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+
+      // Update insights
+      document.getElementById('insight-load').textContent = loadInsight(sessions);
+      document.getElementById('insight-duration').textContent = durationInsight(sessions);
+      document.getElementById('insight-calories').textContent = caloriesInsight(sessions);
+      document.getElementById('insight-zones').textContent = hrZoneInsight(sessions);
+      document.getElementById('insight-te').textContent = teInsight(sessions);
+
+      const baseOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true }
         }
+      };
 
-        // Calculate percentage change
-        function percentChange(first, last) {
-            if (first === 0) return 0;
-            return Math.round(((last - first) / first) * 100);
+      // Chart 1: Training Load (Line default)
+      createChart('chartLoad', 'line', {
+        labels,
+        datasets: [{
+          data: s.map(x => x.trainingLoad),
+          borderColor: '#16A34A',
+          backgroundColor: 'rgba(22, 163, 74, 0.1)',
+          fill: true
+        }]
+      }, baseOptions);
+
+      // Chart 2: Duration (Bar default)
+      createChart('chartDuration', 'bar', {
+        labels,
+        datasets: [{
+          data: s.map(x => x.durationMinutes),
+          backgroundColor: '#16A34A'
+        }]
+      }, baseOptions);
+
+      // Chart 3: Calories (Bar default)
+      createChart('chartCalories', 'bar', {
+        labels,
+        datasets: [{
+          data: s.map(x => x.calories),
+          backgroundColor: '#16A34A'
+        }]
+      }, baseOptions);
+
+      // Chart 4: HR Zones (Stacked Bar)
+      createChart('chartZones', 'bar', {
+        labels,
+        datasets: [
+          { label: 'Z1', data: s.map(x => Math.round((x.hrZone1Sec || 0) / 60)), backgroundColor: '#93C5FD' },
+          { label: 'Z2', data: s.map(x => Math.round((x.hrZone2Sec || 0) / 60)), backgroundColor: '#6EE7B7' },
+          { label: 'Z3', data: s.map(x => Math.round((x.hrZone3Sec || 0) / 60)), backgroundColor: '#FDE68A' },
+          { label: 'Z4', data: s.map(x => Math.round((x.hrZone4Sec || 0) / 60)), backgroundColor: '#FCA5A5' },
+          { label: 'Z5', data: s.map(x => Math.round((x.hrZone5Sec || 0) / 60)), backgroundColor: '#F87171' }
+        ]
+      }, {
+        ...baseOptions,
+        scales: {
+          ...baseOptions.scales,
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Minutes' } }
         }
+      });
 
-        // Calculate stats
-        function calculateStats(sessions) {
-            const totalSessions = sessions.length;
-            const totalCalories = sessions.reduce((sum, s) => sum + s.calories, 0);
-            const totalDuration = sessions.reduce((sum, s) => sum + s.durationMinutes, 0);
-            const avgDuration = totalDuration / totalSessions;
-            const bestTrainingLoad = Math.max(...sessions.map(s => s.trainingLoad));
-            
-            return { totalSessions, totalCalories, totalDuration, avgDuration, bestTrainingLoad };
+      // Chart 5: Training Effect (Grouped Bar)
+      createChart('chartTE', 'bar', {
+        labels,
+        datasets: [
+          { label: 'Aerobic TE', data: s.map(x => x.aerobicTE || 0), backgroundColor: '#16A34A' },
+          { label: 'Anaerobic TE', data: s.map(x => x.anaerobicTE || 0), backgroundColor: '#9CA3AF' }
+        ]
+      }, {
+        ...baseOptions,
+        scales: {
+          ...baseOptions.scales,
+          y: { beginAtZero: true, max: 5, title: { display: true, text: 'TE Score' } }
         }
+      });
+    }
 
-        // Generate chart commentary
-        function generateCommentary(chartType, sessions) {
-            const sessionsOldest = [...sessions].reverse();
-            
-            switch(chartType) {
-                case 'duration': {
-                    const first = sessionsOldest[0].durationMinutes;
-                    const last = sessionsOldest[sessionsOldest.length - 1].durationMinutes;
-                    const change = percentChange(first, last);
-                    const avg = Math.round(sessions.reduce((s, x) => s + x.durationMinutes, 0) / sessions.length);
-                    const longest = Math.max(...sessions.map(s => s.durationMinutes));
-                    const longestDate = formatShortDate(sessions.find(s => s.durationMinutes === longest).date);
-                    if (change > 0) {
-                        return `Sessions getting longer — up ${change}% from first to last. Longest: ${Math.round(longest)} min on ${longestDate}.`;
-                    } else if (change < 0) {
-                        return `Session length varies — ${Math.abs(change)}% shorter than start. Avg: ${avg} min. Consistency matters more than length.`;
-                    }
-                    return `Steady session lengths averaging ${avg} min. Longest was ${Math.round(longest)} min on ${longestDate}.`;
-                }
-                case 'calories': {
-                    const avg = Math.round(sessions.reduce((s, x) => s + x.calories, 0) / sessions.length);
-                    const highest = Math.max(...sessions.map(s => s.calories));
-                    const highestSession = sessions.find(s => s.calories === highest);
-                    return `Avg ${avg} kcal/session. Highest burn on ${formatShortDate(highestSession.date)} (${Math.round(highestSession.durationMinutes)} min session).`;
-                }
-                case 'trainingLoad': {
-                    const max = Math.max(...sessions.map(s => s.trainingLoad));
-                    const maxSession = sessions.find(s => s.trainingLoad === max);
-                    const avg = Math.round(sessions.reduce((s, x) => s + x.trainingLoad, 0) / sessions.length);
-                    const trend = sessionsOldest[sessionsOldest.length - 1].trainingLoad > sessionsOldest[0].trainingLoad;
-                    return `Load peaked on ${formatShortDate(maxSession.date)} (${max.toFixed(1)}) — ${trend ? 'trending upward ↗' : 'your best intensity so far'}. Avg: ${avg}.`;
-                }
-                case 'hr': {
-                    const maxHR = Math.max(...sessions.map(s => s.maxHR));
-                    const maxHRSession = sessions.find(s => s.maxHR === maxHR);
-                    const avgHRs = sessions.map(s => s.avgHR);
-                    const avgTrend = avgHRs[0] > avgHRs[avgHRs.length - 1] ? 'trending up' : 'stable';
-                    return `Max HR reached ${maxHR} bpm (${formatShortDate(maxHRSession.date)}). Avg HR ${avgTrend} — cardio being pushed.`;
-                }
-                case 'hrZones': {
-                    const totalZ2 = sessions.reduce((s, x) => s + x.hrZone2Sec, 0);
-                    const totalZ3 = sessions.reduce((s, x) => s + x.hrZone3Sec, 0);
-                    const totalAll = sessions.reduce((s, x) => s + x.hrZone1Sec + x.hrZone2Sec + x.hrZone3Sec + x.hrZone4Sec + x.hrZone5Sec, 0);
-                    const z23Percent = Math.round(((totalZ2 + totalZ3) / totalAll) * 100);
-                    return `Spending ${z23Percent}% of time in Zone 2–3 — classic aerobic base building phase. Great for endurance.`;
-                }
-                case 'bodyBattery': {
-                    const costs = sessions.map(s => Math.abs(s.bodyBatteryChange));
-                    const min = Math.min(...costs);
-                    const max = Math.max(...costs);
-                    const avg = Math.round(costs.reduce((a, b) => a + b, 0) / costs.length);
-                    return `Consistent ${min === max ? `-${min}` : `-${min} to -${max}`} cost per session (avg -${avg}) — well within recovery range.`;
-                }
-                case 'intensity': {
-                    const bestSession = sessions.reduce((best, s) => s.vigorousIntensityMin > best.vigorousIntensityMin ? s : best);
-                    const totalVig = sessions.reduce((s, x) => s + x.vigorousIntensityMin, 0);
-                    const first = sessionsOldest[0].vigorousIntensityMin;
-                    const last = sessionsOldest[sessionsOldest.length - 1].vigorousIntensityMin;
-                    const trend = last > first ? 'growing' : 'consistent';
-                    return `Vigorous minutes ${trend}. ${formatShortDate(bestSession.date)} was most intense (${bestSession.vigorousIntensityMin} vig min).`;
-                }
-                case 'water': {
-                    const min = Math.min(...sessions.map(s => s.waterEstimatedMl));
-                    const max = Math.max(...sessions.map(s => s.waterEstimatedMl));
-                    const avg = Math.round(sessions.reduce((s, x) => s + x.waterEstimatedMl, 0) / sessions.length);
-                    return `Estimated sweat loss ${min}–${max}ml (avg ${avg}ml). Remember to hydrate before & after!`;
-                }
-                case 'trainingEffect': {
-                    const aerobicCount = sessions.filter(s => s.trainingEffect === 'AEROBIC_BASE').length;
-                    const avgAerobic = (sessions.reduce((s, x) => s + x.aerobicTE, 0) / sessions.length).toFixed(1);
-                    const avgAnaerobic = (sessions.reduce((s, x) => s + x.anaerobicTE, 0) / sessions.length).toFixed(1);
-                    return `${aerobicCount}/${sessions.length} sessions hit Aerobic Base TE. Avg: ${avgAerobic} aerobic, ${avgAnaerobic} anaerobic. Foundation building solidly.`;
-                }
-                default:
-                    return '';
-            }
-        }
+    // Session table
+    function renderSessionTable(sessions) {
+      const tbody = document.getElementById('sessionTableBody');
+      tbody.innerHTML = '';
 
-        // Generate fitness stage analysis
-        function generateFitnessStage(sessions) {
-            const sessionsOldest = [...sessions].reverse();
-            
-            // Calculate metrics
-            const totalSessions = sessions.length;
-            const avgCalories = Math.round(sessions.reduce((s, x) => s + x.calories, 0) / sessions.length);
-            const avgDuration = Math.round(sessions.reduce((s, x) => s + x.durationMinutes, 0) / sessions.length);
-            const aerobicCount = sessions.filter(s => s.trainingEffect === 'AEROBIC_BASE').length;
-            const avgLoad = Math.round(sessions.reduce((s, x) => s + x.trainingLoad, 0) / sessions.length);
-            const loadTrend = sessionsOldest[sessionsOldest.length - 1].trainingLoad > sessionsOldest[0].trainingLoad;
-            
-            // HR Zone analysis
-            const totalZ2 = sessions.reduce((s, x) => s + x.hrZone2Sec, 0);
-            const totalZ3 = sessions.reduce((s, x) => s + x.hrZone3Sec, 0);
-            const totalAll = sessions.reduce((s, x) => s + x.hrZone1Sec + x.hrZone2Sec + x.hrZone3Sec + x.hrZone4Sec + x.hrZone5Sec, 0);
-            const z23Percent = Math.round(((totalZ2 + totalZ3) / totalAll) * 100);
-            
-            // Body battery
-            const avgBatteryCost = Math.round(sessions.reduce((s, x) => s + Math.abs(x.bodyBatteryChange), 0) / sessions.length);
-            
-            // Frequency (sessions per week estimate)
-            const firstDate = new Date(sessionsOldest[0].date);
-            const lastDate = new Date(sessionsOldest[sessionsOldest.length - 1].date);
-            const weeks = Math.max(1, Math.ceil((lastDate - firstDate) / (7 * 24 * 60 * 60 * 1000)));
-            const sessionsPerWeek = (totalSessions / weeks).toFixed(1);
-            
-            // Determine fitness stage
-            let stage, stageEmoji;
-            if (totalSessions < 5 && aerobicCount >= totalSessions * 0.7) {
-                stage = 'Early Aerobic Base Building';
-                stageEmoji = '🟢';
-            } else if (totalSessions >= 5 && avgLoad > 40 && aerobicCount >= totalSessions * 0.7) {
-                stage = 'Active Aerobic Development';
-                stageEmoji = '🔵';
-            } else if (avgLoad > 50) {
-                stage = 'Intensity Building Phase';
-                stageEmoji = '🟠';
-            } else {
-                stage = 'Aerobic Base Building';
-                stageEmoji = '🟢';
-            }
-            
-            // Generate insights
-            const insights = [
-                {
-                    emoji: '🏸',
-                    text: `Playing <strong>${sessionsPerWeek}x/week</strong> over ${weeks} week${weeks > 1 ? 's' : ''} — ${parseFloat(sessionsPerWeek) >= 2 ? 'forming a solid habit' : 'building momentum'}`
-                },
-                {
-                    emoji: '💓',
-                    text: `Heart rate <strong>${z23Percent}% in Zone 2–3</strong> — aerobic engine ${z23Percent > 60 ? 'developing nicely' : 'being trained'}`
-                },
-                {
-                    emoji: '📈',
-                    text: `Training load ${loadTrend ? '<strong>trending upward</strong> — progressive overload happening' : `averaging <strong>${avgLoad}</strong> — consistent effort`}`
-                },
-                {
-                    emoji: '⚡',
-                    text: `Body battery cost <strong>-${avgBatteryCost}/session</strong> — ${avgBatteryCost <= 5 ? 'body adapting well to load' : 'working hard but recovering'}`
-                }
-            ];
-            
-            // Generate summary
-            const summary = loadTrend 
-                ? `You're in the foundation phase — building the engine. The consistent aerobic work now will compound into better endurance and court speed over the next 4–6 weeks. Training load is progressively increasing which shows good adaptation. Keep frequency up, don't skip sessions!`
-                : `You're laying the groundwork for better fitness. ${aerobicCount}/${totalSessions} sessions have hit aerobic training effect — exactly what you need at this stage. The consistent ${avgDuration}-min sessions averaging ${avgCalories} kcal are building your base. Stay consistent and the gains will follow.`;
-            
-            return { stage, stageEmoji, insights, summary };
-        }
+      const sorted = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Create chart with toggle support
-        function createToggleableChart(canvasId, config, defaultType = 'bar') {
-            const canvas = document.getElementById(canvasId);
-            const currentType = config.type || defaultType;
-            
-            chartInstances[canvasId] = new Chart(canvas, {
-                ...config,
-                type: currentType
-            });
-            
-            return chartInstances[canvasId];
-        }
+      sorted.forEach(session => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = session.activityId;
+        tr.innerHTML = `
+          <td>${formatShortDate(session.date)}</td>
+          <td><span class="activity-badge">🏸 ${session.activityType || 'Badminton'}</span></td>
+          <td>${session.durationMinutes.toFixed(0)} min</td>
+          <td>${formatNumber(session.calories)} kcal</td>
+          <td>${session.avgHR} bpm</td>
+          <td>${session.trainingLoad.toFixed(1)}</td>
+          <td>${session.aerobicTE.toFixed(1)} / ${session.anaerobicTE.toFixed(1)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
-        // Toggle chart type
-        function toggleChart(canvasId, newType, config) {
-            if (chartInstances[canvasId]) {
-                chartInstances[canvasId].destroy();
-            }
-            
-            const canvas = document.getElementById(canvasId);
-            chartInstances[canvasId] = new Chart(canvas, {
-                ...config,
-                type: newType
-            });
-            
-            // Update toggle buttons
-            const container = canvas.closest('.chart-card');
-            container.querySelectorAll('.toggle-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.type === newType);
-            });
-        }
+    function buildDetailRow(activityId) {
+      const session = allSessions.find(s => s.activityId == activityId);
+      if (!session) return document.createElement('tr');
 
-        // Render dashboard
-        function render(sessions) {
-            const stats = calculateStats(sessions);
-            const sessionsOldest = [...sessions].reverse();
-            const labels = sessionsOldest.map(s => formatShortDate(s.date));
-            const fitness = generateFitnessStage(sessions);
-            
-            // Update last updated
-            document.getElementById('lastUpdated').textContent = 
-                `Last session: ${formatDate(sessions[0].date)}`;
+      const tr = document.createElement('tr');
+      tr.className = 'session-detail-row';
+      tr.innerHTML = `
+        <td colspan="7">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="detail-label">Start Time</div>
+              <div class="detail-value">${session.startTimeLocal}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Max HR</div>
+              <div class="detail-value">${session.maxHR} bpm</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Steps</div>
+              <div class="detail-value">${formatNumber(session.steps)}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Water Estimate</div>
+              <div class="detail-value">${session.waterEstimatedMl} ml</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Body Battery</div>
+              <div class="detail-value">${session.bodyBatteryChange}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Training Effect</div>
+              <div class="detail-value">${session.trainingEffect}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Moderate Intensity</div>
+              <div class="detail-value">${session.moderateIntensityMin} min</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Vigorous Intensity</div>
+              <div class="detail-value">${session.vigorousIntensityMin} min</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Aerobic Message</div>
+              <div class="detail-value">${session.aerobicTEMessage}</div>
+            </div>
+          </div>
+        </td>
+      `;
+      return tr;
+    }
 
-            // Build HTML
-            const html = `
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card accent-green">
-                        <div class="stat-icon">🏸</div>
-                        <div class="stat-value">${stats.totalSessions}</div>
-                        <div class="stat-label">Sessions</div>
-                    </div>
-                    <div class="stat-card accent-orange">
-                        <div class="stat-icon">🔥</div>
-                        <div class="stat-value">${stats.totalCalories.toLocaleString()}</div>
-                        <div class="stat-label">Total Calories</div>
-                    </div>
-                    <div class="stat-card accent-blue">
-                        <div class="stat-icon">⏱️</div>
-                        <div class="stat-value">${Math.round(stats.totalDuration)}</div>
-                        <div class="stat-label">Total Minutes</div>
-                    </div>
-                    <div class="stat-card accent-purple">
-                        <div class="stat-icon">📊</div>
-                        <div class="stat-value">${Math.round(stats.avgDuration)}</div>
-                        <div class="stat-label">Avg Duration</div>
-                    </div>
-                    <div class="stat-card accent-red">
-                        <div class="stat-icon">💪</div>
-                        <div class="stat-value">${stats.bestTrainingLoad.toFixed(1)}</div>
-                        <div class="stat-label">Best Load</div>
-                    </div>
-                </div>
+    // Fitness stage
+    function renderFitnessStage(sessions) {
+      const stage = computeFitnessStage(sessions);
+      const badge = document.getElementById('stageBadge');
+      const bullets = document.getElementById('stageBullets');
+      const summary = document.getElementById('stageSummary');
 
-                <!-- Charts -->
-                <div class="charts-grid">
-                    <!-- Duration Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">⏱️ Session Duration</div>
-                                <div class="chart-commentary">${generateCommentary('duration', sessions)}</div>
-                            </div>
-                            <div class="chart-toggle" data-chart="durationChart">
-                                <button class="toggle-btn active" data-type="bar">Bar</button>
-                                <button class="toggle-btn" data-type="line">Line</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="durationChart"></canvas>
-                        </div>
-                    </div>
+      badge.textContent = stage.stage;
+      badge.style.backgroundColor = stage.color;
 
-                    <!-- Calories Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">🔥 Calories Burned</div>
-                                <div class="chart-commentary">${generateCommentary('calories', sessions)}</div>
-                            </div>
-                            <div class="chart-toggle" data-chart="caloriesChart">
-                                <button class="toggle-btn active" data-type="bar">Bar</button>
-                                <button class="toggle-btn" data-type="line">Line</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="caloriesChart"></canvas>
-                        </div>
-                    </div>
+      bullets.innerHTML = stage.bullets.map(b => `<li>${b}</li>`).join('');
+      summary.textContent = stage.summary;
 
-                    <!-- Training Load Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">📈 Training Load</div>
-                                <div class="chart-commentary">${generateCommentary('trainingLoad', sessions)}</div>
-                            </div>
-                            <div class="chart-toggle" data-chart="loadChart">
-                                <button class="toggle-btn" data-type="bar">Bar</button>
-                                <button class="toggle-btn active" data-type="line">Line</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="loadChart"></canvas>
-                        </div>
-                    </div>
+      // Update card border color
+      document.getElementById('stageCard').style.borderLeftColor = stage.color;
+    }
 
-                    <!-- Heart Rate Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">💓 Heart Rate</div>
-                                <div class="chart-commentary">${generateCommentary('hr', sessions)}</div>
-                            </div>
-                            <div class="chart-toggle" data-chart="hrChart">
-                                <button class="toggle-btn" data-type="bar">Bar</button>
-                                <button class="toggle-btn active" data-type="line">Line</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="hrChart"></canvas>
-                        </div>
-                    </div>
+    // Stats
+    function renderStats(sessions) {
+      const totalSessions = sessions.length;
+      const totalCalories = sessions.reduce((t, s) => t + s.calories, 0);
+      const avgDuration = sessions.length ? Math.round(sessions.reduce((t, s) => t + s.durationMinutes, 0) / sessions.length) : 0;
+      const avgHR = sessions.length ? Math.round(sessions.reduce((t, s) => t + s.avgHR, 0) / sessions.length) : 0;
 
-                    <!-- HR Zones Chart -->
-                    <div class="chart-card full-width">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">🎯 Heart Rate Zones</div>
-                                <div class="chart-commentary">${generateCommentary('hrZones', sessions)}</div>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="zoneChart"></canvas>
-                        </div>
-                    </div>
+      animateValue(document.getElementById('statSessions'), totalSessions);
+      animateValue(document.getElementById('statCalories'), totalCalories);
+      animateValue(document.getElementById('statDuration'), avgDuration, ' min');
+      animateValue(document.getElementById('statHR'), avgHR, ' bpm');
+    }
 
-                    <!-- Body Battery Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">⚡ Body Battery Cost</div>
-                                <div class="chart-commentary">${generateCommentary('bodyBattery', sessions)}</div>
-                            </div>
-                            <div class="chart-toggle" data-chart="batteryChart">
-                                <button class="toggle-btn active" data-type="bar">Bar</button>
-                                <button class="toggle-btn" data-type="line">Line</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="batteryChart"></canvas>
-                        </div>
-                    </div>
+    // Update date
+    function updateDates(sessions) {
+      if (!sessions.length) return;
+      const latest = sessions.reduce((m, s) => new Date(s.date) > new Date(m.date) ? s : m);
+      const text = `Updated ${formatShortDate(latest.date)}`;
+      document.getElementById('updatedText').textContent = text;
+      document.getElementById('footerUpdated').textContent = text;
+    }
 
-                    <!-- Intensity Minutes Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">🏃 Intensity Minutes</div>
-                                <div class="chart-commentary">${generateCommentary('intensity', sessions)}</div>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="intensityChart"></canvas>
-                        </div>
-                    </div>
+    // Filter handling
+    function applyFilter(filter) {
+      if (filter === 'all') {
+        filteredSessions = [...allSessions];
+      } else {
+        filteredSessions = allSessions.filter(s => s.activityType === filter);
+      }
+      renderAll();
+    }
 
-                    <!-- Water Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">💧 Estimated Sweat Loss</div>
-                                <div class="chart-commentary">${generateCommentary('water', sessions)}</div>
-                            </div>
-                            <div class="chart-toggle" data-chart="waterChart">
-                                <button class="toggle-btn active" data-type="bar">Bar</button>
-                                <button class="toggle-btn" data-type="line">Line</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="waterChart"></canvas>
-                        </div>
-                    </div>
+    function renderAll() {
+      renderStats(filteredSessions);
+      renderHeatmap(filteredSessions);
+      renderFitnessStage(filteredSessions);
+      renderCharts(filteredSessions);
+      renderSessionTable(filteredSessions);
+      updateDates(filteredSessions);
+    }
 
-                    <!-- Training Effect Chart -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title-group">
-                                <div class="chart-title">🎯 Training Effect</div>
-                                <div class="chart-commentary">${generateCommentary('trainingEffect', sessions)}</div>
-                            </div>
-                            <div class="chart-toggle" data-chart="teChart">
-                                <button class="toggle-btn active" data-type="bar">Bar</button>
-                                <button class="toggle-btn" data-type="line">Line</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="teChart"></canvas>
-                        </div>
-                    </div>
-                </div>
+    // Event listeners
+    document.addEventListener('click', e => {
+      // Toggle buttons
+      if (e.target.matches('.toggle-btn')) {
+        const canvasId = e.target.dataset.chart;
+        const type = e.target.dataset.type;
+        e.target.closest('.chart-toggle').querySelectorAll('.toggle-btn')
+          .forEach(b => b.classList.toggle('active', b === e.target));
+        toggleChart(canvasId, type);
+        return;
+      }
 
-                <!-- Fitness Stage Card -->
-                <div class="fitness-stage-card">
-                    <div class="fitness-stage-content">
-                        <div class="fitness-stage-header">
-                            <div class="fitness-stage-title">📍 Where Arpit's At</div>
-                            <div class="fitness-badge">${fitness.stageEmoji} ${fitness.stage}</div>
-                        </div>
-                        <div class="fitness-insights">
-                            ${fitness.insights.map(i => `
-                                <div class="insight-item">
-                                    <span class="insight-emoji">${i.emoji}</span>
-                                    <span class="insight-text">${i.text}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="fitness-summary">
-                            <div class="fitness-summary-title">💡 What This Means</div>
-                            <div class="fitness-summary-text">${fitness.summary}</div>
-                        </div>
-                    </div>
-                </div>
+      // Filter tabs
+      if (e.target.matches('.filter-tab:not(.coming-soon)')) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        applyFilter(e.target.dataset.filter);
+        return;
+      }
+    });
 
-                <!-- Sessions -->
-                <div class="sessions-section">
-                    <div class="section-header">
-                        <div class="section-title">
-                            📋 Session History
-                            <span class="session-count">(${sessions.length} sessions)</span>
-                        </div>
-                    </div>
-                    <div class="sessions-grid">
-                        ${sessions.map(s => `
-                            <div class="session-card">
-                                <div class="session-header">
-                                    <div class="session-date-group">
-                                        <div class="session-date">${formatDate(s.date)}</div>
-                                        <div class="session-time">${formatTime(s.startTimeLocal)}</div>
-                                    </div>
-                                    <span class="training-badge ${s.trainingEffect === 'AEROBIC_BASE' ? 'badge-aerobic' : 'badge-recovery'}">
-                                        ${s.trainingEffect === 'AEROBIC_BASE' ? '🟢 Aerobic' : '🟠 Recovery'}
-                                    </span>
-                                </div>
-                                <div class="session-stats">
-                                    <div class="session-stat">
-                                        <div class="session-stat-value">${Math.round(s.durationMinutes)}</div>
-                                        <div class="session-stat-label">Minutes</div>
-                                    </div>
-                                    <div class="session-stat">
-                                        <div class="session-stat-value">${s.calories}</div>
-                                        <div class="session-stat-label">Calories</div>
-                                    </div>
-                                    <div class="session-stat">
-                                        <div class="session-stat-value">${s.trainingLoad.toFixed(1)}</div>
-                                        <div class="session-stat-label">Load</div>
-                                    </div>
-                                </div>
-                                <div class="session-details">
-                                    <div class="detail-item">
-                                        <span class="detail-label">Avg HR</span>
-                                        <span class="detail-value">${s.avgHR} bpm</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Max HR</span>
-                                        <span class="detail-value">${s.maxHR} bpm</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Aerobic TE</span>
-                                        <span class="detail-value">${s.aerobicTE}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Anaerobic TE</span>
-                                        <span class="detail-value">${s.anaerobicTE}</span>
-                                    </div>
-                                </div>
-                                <div class="hr-zone-section">
-                                    <div class="hr-zone-label">Heart Rate Zones</div>
-                                    <div class="hr-zone-bar">
-                                        ${(() => {
-                                            const total = s.hrZone1Sec + s.hrZone2Sec + s.hrZone3Sec + s.hrZone4Sec + s.hrZone5Sec;
-                                            return `
-                                                <div class="zone zone-1" style="width: ${(s.hrZone1Sec/total*100).toFixed(1)}%"></div>
-                                                <div class="zone zone-2" style="width: ${(s.hrZone2Sec/total*100).toFixed(1)}%"></div>
-                                                <div class="zone zone-3" style="width: ${(s.hrZone3Sec/total*100).toFixed(1)}%"></div>
-                                                <div class="zone zone-4" style="width: ${(s.hrZone4Sec/total*100).toFixed(1)}%"></div>
-                                                <div class="zone zone-5" style="width: ${(s.hrZone5Sec/total*100).toFixed(1)}%"></div>
-                                            `;
-                                        })()}
-                                    </div>
-                                    <div class="hr-zone-legend">
-                                        <span>Z1</span><span>Z2</span><span>Z3</span><span>Z4</span><span>Z5</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
+    // Session table expand
+    document.getElementById('sessionTableBody').addEventListener('click', e => {
+      const row = e.target.closest('tr[data-id]');
+      if (!row) return;
+      const existingDetail = row.nextElementSibling;
+      if (existingDetail?.classList.contains('session-detail-row')) {
+        existingDetail.remove();
+        row.classList.remove('expanded');
+      } else {
+        // Close any other open details
+        document.querySelectorAll('.session-detail-row').forEach(r => r.remove());
+        document.querySelectorAll('tr.expanded').forEach(r => r.classList.remove('expanded'));
+        
+        const detail = buildDetailRow(row.dataset.id);
+        row.after(detail);
+        row.classList.add('expanded');
+      }
+    });
 
-                <footer>
-                    <p>🏸 Badminton Dashboard • Powered by <a href="https://connect.garmin.com" target="_blank">Garmin Connect</a> • Built with 💚</p>
-                </footer>
-            `;
+    // Window resize for heatmap
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => renderHeatmap(filteredSessions), 250);
+    });
 
-            document.getElementById('app').innerHTML = html;
-
-            // Chart configurations
-            const chartConfigs = {
-                durationChart: {
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Duration (min)',
-                            data: sessionsOldest.map(s => s.durationMinutes),
-                            backgroundColor: COLORS.primary + '40',
-                            borderColor: COLORS.primary,
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            tension: 0.3,
-                            fill: true,
-                            pointBackgroundColor: COLORS.primary,
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: COLORS.border } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                },
-                caloriesChart: {
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Calories',
-                            data: sessionsOldest.map(s => s.calories),
-                            backgroundColor: COLORS.orange + '40',
-                            borderColor: COLORS.orange,
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            tension: 0.3,
-                            fill: true,
-                            pointBackgroundColor: COLORS.orange,
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: COLORS.border } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                },
-                loadChart: {
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Training Load',
-                            data: sessionsOldest.map(s => s.trainingLoad),
-                            backgroundColor: COLORS.secondary + '40',
-                            borderColor: COLORS.secondary,
-                            borderWidth: 3,
-                            borderRadius: 8,
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: COLORS.secondary,
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: COLORS.border } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                },
-                hrChart: {
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Max HR',
-                                data: sessionsOldest.map(s => s.maxHR),
-                                backgroundColor: COLORS.red + '40',
-                                borderColor: COLORS.red,
-                                borderWidth: 2,
-                                tension: 0.3,
-                                fill: false,
-                                pointBackgroundColor: COLORS.red,
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5
-                            },
-                            {
-                                label: 'Avg HR',
-                                data: sessionsOldest.map(s => s.avgHR),
-                                backgroundColor: COLORS.blue + '40',
-                                borderColor: COLORS.blue,
-                                borderWidth: 2,
-                                tension: 0.3,
-                                fill: false,
-                                pointBackgroundColor: COLORS.blue,
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } },
-                        scales: {
-                            y: { min: 80, grid: { color: COLORS.border } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                },
-                batteryChart: {
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Battery Cost',
-                            data: sessionsOldest.map(s => Math.abs(s.bodyBatteryChange)),
-                            backgroundColor: sessionsOldest.map(s => 
-                                Math.abs(s.bodyBatteryChange) >= 6 ? COLORS.red + '60' : COLORS.primary + '60'
-                            ),
-                            borderColor: sessionsOldest.map(s => 
-                                Math.abs(s.bodyBatteryChange) >= 6 ? COLORS.red : COLORS.primary
-                            ),
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            tension: 0.3,
-                            fill: true,
-                            pointBackgroundColor: COLORS.primary,
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: COLORS.border } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                },
-                waterChart: {
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Water (ml)',
-                            data: sessionsOldest.map(s => s.waterEstimatedMl),
-                            backgroundColor: COLORS.blue + '40',
-                            borderColor: COLORS.blue,
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            tension: 0.3,
-                            fill: true,
-                            pointBackgroundColor: COLORS.blue,
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: COLORS.border } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                },
-                teChart: {
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Aerobic TE',
-                                data: sessionsOldest.map(s => s.aerobicTE),
-                                backgroundColor: COLORS.primary + '60',
-                                borderColor: COLORS.primary,
-                                borderWidth: 2,
-                                borderRadius: 6,
-                                tension: 0.3,
-                                fill: true,
-                                pointBackgroundColor: COLORS.primary,
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5
-                            },
-                            {
-                                label: 'Anaerobic TE',
-                                data: sessionsOldest.map(s => s.anaerobicTE),
-                                backgroundColor: COLORS.secondary + '60',
-                                borderColor: COLORS.secondary,
-                                borderWidth: 2,
-                                borderRadius: 6,
-                                tension: 0.3,
-                                fill: true,
-                                pointBackgroundColor: COLORS.secondary,
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top' } },
-                        scales: {
-                            y: { beginAtZero: true, max: 5, grid: { color: COLORS.border } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                }
-            };
-
-            // Create charts with appropriate default types
-            createToggleableChart('durationChart', { type: 'bar', ...chartConfigs.durationChart });
-            createToggleableChart('caloriesChart', { type: 'bar', ...chartConfigs.caloriesChart });
-            createToggleableChart('loadChart', { type: 'line', ...chartConfigs.loadChart });
-            createToggleableChart('hrChart', { type: 'line', ...chartConfigs.hrChart });
-            createToggleableChart('batteryChart', { type: 'bar', ...chartConfigs.batteryChart });
-            createToggleableChart('waterChart', { type: 'bar', ...chartConfigs.waterChart });
-            createToggleableChart('teChart', { type: 'bar', ...chartConfigs.teChart });
-
-            // HR Zones Stacked Bar (no toggle needed)
-            new Chart(document.getElementById('zoneChart'), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Zone 1', data: sessionsOldest.map(s => s.hrZone1Sec/60), backgroundColor: COLORS.zones[0], borderRadius: 4 },
-                        { label: 'Zone 2', data: sessionsOldest.map(s => s.hrZone2Sec/60), backgroundColor: COLORS.zones[1], borderRadius: 4 },
-                        { label: 'Zone 3', data: sessionsOldest.map(s => s.hrZone3Sec/60), backgroundColor: COLORS.zones[2], borderRadius: 4 },
-                        { label: 'Zone 4', data: sessionsOldest.map(s => s.hrZone4Sec/60), backgroundColor: COLORS.zones[3], borderRadius: 4 },
-                        { label: 'Zone 5', data: sessionsOldest.map(s => s.hrZone5Sec/60), backgroundColor: COLORS.zones[4], borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' } },
-                    scales: {
-                        x: { stacked: true, grid: { display: false } },
-                        y: { stacked: true, title: { display: true, text: 'Minutes' }, grid: { color: COLORS.border } }
-                    }
-                }
-            });
-
-            // Intensity Minutes Stacked Bar (no toggle needed)
-            new Chart(document.getElementById('intensityChart'), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Moderate',
-                            data: sessionsOldest.map(s => s.moderateIntensityMin),
-                            backgroundColor: COLORS.yellow,
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'Vigorous',
-                            data: sessionsOldest.map(s => s.vigorousIntensityMin),
-                            backgroundColor: COLORS.orange,
-                            borderRadius: 4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' } },
-                    scales: {
-                        x: { stacked: true, grid: { display: false } },
-                        y: { stacked: true, title: { display: true, text: 'Minutes' }, grid: { color: COLORS.border } }
-                    }
-                }
-            });
-
-            // Setup toggle event listeners
-            document.querySelectorAll('.chart-toggle').forEach(toggle => {
-                const chartId = toggle.dataset.chart;
-                toggle.querySelectorAll('.toggle-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const newType = btn.dataset.type;
-                        if (chartConfigs[chartId]) {
-                            toggleChart(chartId, newType, chartConfigs[chartId]);
-                        }
-                    });
-                });
-            });
-        }
-
-        // Load data
-        fetch('data/sessions.json')
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to load session data');
-                return response.json();
-            })
-            .then(data => render(data))
-            .catch(error => {
-                document.getElementById('app').innerHTML = `
-                    <div class="loading">
-                        <p style="color: #EF4444; font-weight: 600;">⚠️ ${error.message}</p>
-                        <p style="margin-top: 0.5rem;">Make sure data/sessions.json exists.</p>
-                    </div>
-                `;
-            });
-    </script>
+    // Load data
+    fetch(`data/sessions.json?v=${Date.now()}`)
+      .then(r => r.json())
+      .then(data => {
+        allSessions = data;
+        filteredSessions = [...allSessions];
+        renderAll();
+      })
+      .catch(err => {
+        console.error('Failed to load sessions:', err);
+        document.querySelector('.hero-row').innerHTML = '<p style="color:var(--text-muted)">Failed to load data. Please refresh.</p>';
+      });
+  </script>
 </body>
 </html>

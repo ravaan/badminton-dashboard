@@ -1,6 +1,7 @@
 [
   {
     "activityId": 23045270877,
+    "activityType": "badminton",
     "date": "2026-05-28",
     "startTimeLocal": "2026-05-28 20:09:32",
     "durationSeconds": 3139.05,
@@ -28,6 +29,7 @@
   },
   {
     "activityId": 23033010319,
+    "activityType": "badminton",
     "date": "2026-05-27",
     "startTimeLocal": "2026-05-27 20:34:51",
     "durationSeconds": 2286.01,
@@ -55,6 +57,7 @@
   },
   {
     "activityId": 23020006075,
+    "activityType": "badminton",
     "date": "2026-05-26",
     "startTimeLocal": "2026-05-26 18:59:50",
     "durationSeconds": 4059.05,
@@ -82,6 +85,7 @@
   },
   {
     "activityId": 22960854291,
+    "activityType": "badminton",
     "date": "2026-05-21",
     "startTimeLocal": "2026-05-21 19:18:22",
     "durationSeconds": 3998.42,
@@ -109,6 +113,7 @@
   },
   {
     "activityId": 22855323875,
+    "activityType": "badminton",
     "date": "2026-05-12",
     "startTimeLocal": "2026-05-12 19:10:54",
     "durationSeconds": 3078.63,
@@ -136,6 +141,7 @@
   },
   {
     "activityId": 22839960470,
+    "activityType": "badminton",
     "date": "2026-05-05",
     "startTimeLocal": "2026-05-05 20:46:36",
     "durationSeconds": 2633.03,

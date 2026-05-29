@@ -1,1153 +1,842 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fitness — Arpit</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <style>
-    :root {
-      --bg:           #F8F8F8;
-      --surface:      #FFFFFF;
-      --border:       #E8E8E8;
-      --border-light: #F2F2F2;
-      --text-1:       #111111;
-      --text-2:       #555555;
-      --text-3:       #999999;
-      --green:        #16A34A;
-      --green-badge:  #EDFAF3;
-      --heat-0:       #EBEBEB;
-      --heat-1:       #B0E8C1;
-      --heat-2:       #4DC97A;
-      --heat-3:       #1E9E4E;
-      --heat-4:       #145E30;
-      --z1: #BFDBFE;
-      --z2: #6EE7B7;
-      --z3: #FDE68A;
-      --z4: #FCA5A5;
-      --z5: #F87171;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitness — Arpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:    #F7F7F7;
+  --sur:   #FFFFFF;
+  --b:     #E8E8E8;
+  --bl:    #F2F2F2;
+  --t1:    #111111;
+  --t2:    #555555;
+  --t3:    #AAAAAA;
+  --grn:   #1A7F4B;
+  --grn-l: #E9F7EE;
+  --h0:    #EAEAEA;
+  --h1:    #AEDCBE;
+  --h2:    #57BB8A;
+  --h3:    #2E8B5C;
+  --h4:    #1A5C38;
+  --z1:#BFDBFE; --z2:#6EE7B7; --z3:#FDE68A; --z4:#FCA5A5; --z5:#F87171;
+  --sleep-deep:#4F46E5; --sleep-rem:#818CF8; --sleep-light:#C7D2FE; --sleep-wake:#F3F4F6;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased}
 
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── PAGE ── */
+.w{max-width:1120px;margin:0 auto;padding:0 32px}
 
-    html { font-size: 16px; }
+/* ── HEADER ── */
+nav{height:48px;background:var(--sur);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:50}
+nav .w{display:flex;align-items:center;justify-content:space-between;height:100%}
+.logo{font-size:14px;font-weight:700;letter-spacing:-.02em}
+.nav-r{font-size:11px;color:var(--t3)}
 
-    body {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text-1);
-      -webkit-font-smoothing: antialiased;
-    }
+/* ── CALENDAR SECTION ── */
+.cal-sec{padding:32px 0 24px;border-bottom:1px solid var(--bl);animation:up .3s ease both}
+.cal-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:14px}
 
-    /* ─── LAYOUT ─── */
-    .page { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+.cal-wrap{display:flex;gap:6px;align-items:flex-start}
+/* Day labels column */
+.cal-days{padding-top:18px;width:26px;flex-shrink:0}
+.cal-days-grid{display:grid;grid-template-rows:repeat(7,10px);gap:2px;font-size:10px;color:var(--t3);line-height:1}
+.cal-days-grid span{display:flex;align-items:center}
+/* Calendar body */
+.cal-body{min-width:0}
+.cal-months-row{position:relative;height:16px;margin-bottom:4px}
+.cal-mlbl{position:absolute;font-size:10px;color:var(--t3);top:0;white-space:nowrap}
+.cal-grid{display:grid;grid-template-rows:repeat(7,10px);grid-auto-flow:column;gap:2px}
+.hc{width:10px;height:10px;border-radius:2px;position:relative}
+.hc:hover .hc-tip{opacity:1;pointer-events:auto}
+.hc-tip{
+  opacity:0;pointer-events:none;position:absolute;
+  bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--t1);color:#fff;
+  font-size:10px;padding:5px 8px;border-radius:4px;white-space:nowrap;z-index:99;
+  transition:opacity .12s
+}
+.hc-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--t1)}
 
-    /* ─── HEADER ─── */
-    .site-header {
-      height: 52px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .site-header .page {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 100%;
-    }
-    .wordmark {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-1);
-    }
-    .header-meta {
-      font-size: 12px;
-      color: var(--text-3);
-    }
+.cal-foot{display:flex;align-items:center;margin-top:10px;font-size:11px;color:var(--t3)}
+.cal-foot-stats{margin-right:auto}
+.cal-legend{display:flex;align-items:center;gap:3px}
+.cal-legend span{font-size:10px;color:var(--t3)}
+.cal-legend .hc{cursor:default}
 
-    /* ─── HERO ─── */
-    .hero {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 64px;
-      padding: 48px 0 40px;
-      border-bottom: 1px solid var(--border-light);
-      opacity: 0;
-      animation: fadeUp .35s ease forwards;
-    }
+/* ── METRICS STRIP ── */
+.metrics-sec{border-bottom:1px solid var(--bl);animation:up .3s .05s ease both}
+.metrics-strip{display:flex;padding:20px 0}
+.metric{flex:1;padding:0 20px;border-right:1px solid var(--bl)}
+.metric:first-child{padding-left:0}
+.metric:last-child{border-right:none}
+.m-num{font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--t1);margin-bottom:4px}
+.m-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:2px}
+.m-ctx{font-size:11px;color:var(--t3);font-style:italic}
 
-    /* Stats column */
-    .stat-eyebrow {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      color: var(--text-3);
-      margin-bottom: 28px;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      row-gap: 32px;
-      column-gap: 24px;
-    }
-    .stat-num {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      color: var(--text-1);
-      margin-bottom: 6px;
-    }
-    .stat-lbl {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      color: var(--text-3);
-    }
+/* ── CONTROLS ── */
+.controls{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--bl);flex-wrap:wrap;animation:up .3s .1s ease both}
+.pill-group{display:inline-flex;background:#EFEFEF;border-radius:6px;padding:2px;gap:1px}
+.pill{border:none;background:transparent;font-family:inherit;font-size:12px;font-weight:500;color:var(--t2);padding:6px 14px;border-radius:5px;cursor:pointer;transition:background .12s,color .12s}
+.pill.on{background:var(--sur);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.pill.dim{opacity:.35;cursor:default;pointer-events:none}
+.ctrl-spacer{flex:1}
+.sec-tabs{display:inline-flex;border-bottom:2px solid transparent;gap:0}
+.stab{border:none;background:transparent;font-family:inherit;font-size:13px;font-weight:500;color:var(--t3);padding:6px 16px 8px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-18px;transition:color .12s,border-color .12s}
+.stab.on{color:var(--t1);border-bottom-color:var(--t1)}
 
-    /* Heatmap column */
-    .heatmap-col { min-width: 0; }
-    .heatmap-eyebrow {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      color: var(--text-3);
-      margin-bottom: 14px;
-    }
+/* ── STAGE CARD ── */
+.stage-wrap{padding:16px 0;animation:up .3s .15s ease both}
+.stage-card{background:var(--sur);border:1px solid var(--b);border-left:3px solid var(--grn);border-radius:7px;overflow:hidden}
+.stage-trg{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none}
+.stage-trg:hover{background:var(--bg)}
+.s-badge{display:inline-flex;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;background:var(--grn-l);color:var(--grn);flex-shrink:0}
+.s-tagline{font-size:12px;color:var(--t3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s-chev{width:14px;height:14px;flex-shrink:0;color:var(--t3);transition:transform .2s}
+.s-chev.open{transform:rotate(180deg)}
+.stage-body{display:none;padding:0 18px 16px;border-top:1px solid var(--bl)}
+.stage-body.open{display:block}
+.s-bullets{list-style:none;margin:12px 0 10px}
+.s-bullets li{font-size:12px;color:var(--t2);padding:2px 0 2px 13px;position:relative;line-height:1.5}
+.s-bullets li::before{content:'';position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:var(--grn)}
+.s-para{font-size:12px;color:var(--t2);line-height:1.65}
 
-    /* Month labels — absolute positioned in a relative container */
-    .heatmap-months-wrap {
-      position: relative;
-      height: 16px;
-      margin-bottom: 4px;
-    }
-    .heatmap-month-lbl {
-      position: absolute;
-      font-size: 11px;
-      color: var(--text-3);
-      top: 0;
-      white-space: nowrap;
-    }
+/* ── CONTENT SECTIONS ── */
+.content{padding:24px 0;animation:up .3s .2s ease both}
 
-    /* Grid — no scroll wrapper, sized to fit */
-    .heatmap-grid {
-      display: grid;
-      grid-template-rows: repeat(7, 12px);
-      grid-auto-flow: column;
-      gap: 3px;
-    }
-    .hm-cell {
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-      cursor: default;
-      position: relative;
-    }
-    .hm-cell[data-tip]:hover::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 11px;
-      color: var(--text-2);
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 20;
-    }
+/* Charts grid */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cc{background:var(--sur);border:1px solid var(--b);border-radius:7px;padding:18px}
+.cc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:2px}
+.cc-title{font-size:12px;font-weight:600;color:var(--t1)}
+.cc-ins{font-size:11px;font-style:italic;color:var(--t3);margin-bottom:14px;line-height:1.4}
+.cc-box{position:relative;height:180px}
 
-    .heatmap-footer {
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 11px;
-      color: var(--text-3);
-    }
-    .heatmap-legend {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      margin-left: auto;
-    }
-    .heatmap-legend span {
-      font-size: 10px;
-      color: var(--text-3);
-    }
-    .heatmap-legend .hm-cell { cursor: default; }
+/* Toggle */
+.tog{display:inline-flex;background:#F0F0F0;border-radius:5px;padding:2px;gap:1px;flex-shrink:0}
+.tb{border:none;background:transparent;font-family:inherit;font-size:10px;font-weight:500;color:var(--t3);padding:3px 9px;border-radius:4px;cursor:pointer;transition:background .1s,color .1s}
+.tb.on{background:var(--t1);color:#fff}
 
-    /* ─── FILTER TABS ─── */
-    .filter-row {
-      padding: 20px 0;
-      border-bottom: 1px solid var(--border-light);
-      opacity: 0;
-      animation: fadeUp .35s ease .08s forwards;
-    }
-    .filter-tabs {
-      display: inline-flex;
-      background: #EFEFEF;
-      border-radius: 7px;
-      padding: 2px;
-      gap: 1px;
-    }
-    .ftab {
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-2);
-      padding: 7px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background .15s, color .15s;
-    }
-    .ftab.active {
-      background: var(--surface);
-      color: var(--text-1);
-      box-shadow: 0 1px 3px rgba(0,0,0,.08);
-    }
-    .ftab.dim {
-      opacity: .35;
-      cursor: default;
-      pointer-events: none;
-    }
+/* Zone legend */
+.zlgd{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px}
+.zi{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t3)}
+.zd{width:7px;height:7px;border-radius:2px;flex-shrink:0}
 
-    /* ─── STAGE CARD (collapsible) ─── */
-    .stage-wrap {
-      margin: 24px 0;
-      opacity: 0;
-      animation: fadeUp .35s ease .16s forwards;
-    }
-    .stage-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--green);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .stage-trigger {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      cursor: pointer;
-      user-select: none;
-      gap: 12px;
-    }
-    .stage-trigger:hover { background: var(--bg); }
-    .stage-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .stage-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      background: var(--green-badge);
-      color: var(--green);
-    }
-    .stage-tagline {
-      font-size: 13px;
-      color: var(--text-3);
-    }
-    .stage-chevron {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      color: var(--text-3);
-      transition: transform .2s ease;
-    }
-    .stage-chevron.open { transform: rotate(180deg); }
+/* ── SESSION TABLE ── */
+.tbl-wrap{padding:24px 0 48px;animation:up .3s .25s ease both}
+.tbl-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;padding:0 10px 10px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--b)}
+thead th:first-child{padding-left:0}
+tbody tr.sr{cursor:pointer;border-bottom:1px solid var(--bl);transition:background .1s}
+tbody tr.sr:hover,tbody tr.sr.open{background:#FAFAFA}
+tbody td{padding:13px 10px;font-size:12px;color:var(--t1)}
+tbody td:first-child{padding-left:0}
+.tbadge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border:1px solid var(--b);border-radius:20px;font-size:10px;font-weight:500;color:var(--t2)}
+.det-row td{padding:0;background:#FAFAFA;border-bottom:1px solid var(--bl)}
+.det-inner{padding:16px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.di .dl{font-size:10px;color:var(--t3);margin-bottom:2px}
+.di .dv{font-size:12px;font-weight:500}
 
-    .stage-body {
-      display: none;
-      padding: 0 20px 20px;
-      border-top: 1px solid var(--border-light);
-    }
-    .stage-body.open { display: block; }
+/* ── FOOTER ── */
+footer{text-align:center;padding:20px;font-size:11px;color:var(--t3);border-top:1px solid var(--bl)}
 
-    .stage-bullets {
-      list-style: none;
-      margin: 16px 0 14px;
-    }
-    .stage-bullets li {
-      font-size: 13px;
-      color: var(--text-2);
-      padding: 3px 0 3px 14px;
-      position: relative;
-    }
-    .stage-bullets li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--green);
-    }
-    .stage-summary {
-      font-size: 13px;
-      color: var(--text-2);
-      line-height: 1.65;
-    }
+/* ── ANIMATIONS ── */
+@keyframes up{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ─── SECTION LABEL ─── */
-    .section-eyebrow {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      color: var(--text-3);
-      margin-bottom: 20px;
-    }
-
-    /* ─── CHARTS ─── */
-    .charts-wrap {
-      padding: 32px 0;
-      border-bottom: 1px solid var(--border-light);
-      opacity: 0;
-      animation: fadeUp .35s ease .24s forwards;
-    }
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .chart-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 20px 20px 16px;
-    }
-    .chart-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-    .chart-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-1);
-    }
-    .chart-insight {
-      font-size: 11.5px;
-      font-style: italic;
-      color: var(--text-3);
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-    .chart-box { position: relative; height: 200px; }
-
-    /* Toggle */
-    .chart-toggle {
-      display: inline-flex;
-      background: #F0F0F0;
-      border-radius: 5px;
-      padding: 2px;
-      gap: 1px;
-      flex-shrink: 0;
-    }
-    .tbtn {
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-3);
-      padding: 3px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background .12s, color .12s;
-    }
-    .tbtn.active {
-      background: var(--text-1);
-      color: #fff;
-    }
-
-    /* Zone legend */
-    .zone-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 16px;
-      margin-top: 12px;
-    }
-    .zone-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      color: var(--text-3);
-    }
-    .zone-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    /* ─── SESSION TABLE ─── */
-    .sessions-wrap {
-      padding: 32px 0 56px;
-      opacity: 0;
-      animation: fadeUp .35s ease .32s forwards;
-    }
-    .session-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .session-table thead th {
-      text-align: left;
-      padding: 0 12px 12px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--text-3);
-      border-bottom: 1px solid var(--border);
-    }
-    .session-table thead th:first-child { padding-left: 0; }
-    .session-table tbody tr.s-row {
-      cursor: pointer;
-      border-bottom: 1px solid var(--border-light);
-      transition: background .12s;
-    }
-    .session-table tbody tr.s-row:hover { background: #FAFAFA; }
-    .session-table tbody tr.s-row.open { background: #FAFAFA; }
-    .session-table td {
-      padding: 15px 12px;
-      font-size: 13px;
-      color: var(--text-1);
-    }
-    .session-table td:first-child { padding-left: 0; }
-    .s-type-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 9px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-2);
-    }
-    .s-detail-row td {
-      padding: 0 0 0 0;
-      background: #FAFAFA;
-      border-bottom: 1px solid var(--border-light);
-    }
-    .s-detail-inner {
-      padding: 20px 0;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-    .s-detail-item .dl { font-size: 11px; color: var(--text-3); margin-bottom: 3px; }
-    .s-detail-item .dv { font-size: 13px; font-weight: 500; color: var(--text-1); }
-
-    /* ─── FOOTER ─── */
-    .site-footer {
-      padding: 20px 0 32px;
-      text-align: center;
-      font-size: 11px;
-      color: var(--text-3);
-    }
-
-    /* ─── ANIMATIONS ─── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ─── MOBILE ─── */
-    @media (max-width: 800px) {
-      .page { padding: 0 20px; }
-      .hero { grid-template-columns: 1fr; gap: 40px; }
-      .charts-grid { grid-template-columns: 1fr; }
-      .s-detail-inner { grid-template-columns: 1fr 1fr; }
-      .session-table thead th:nth-child(n+5),
-      .session-table tbody td:nth-child(n+5) { display: none; }
-    }
-  </style>
+/* ── MOBILE ── */
+@media(max-width:700px){
+  .w{padding:0 16px}
+  .charts-grid{grid-template-columns:1fr}
+  .metrics-strip{flex-wrap:wrap}
+  .metric{flex:0 0 50%;border-right:none;border-bottom:1px solid var(--bl);padding:12px 0}
+  .det-inner{grid-template-columns:1fr 1fr}
+  thead th:nth-child(n+5),tbody td:nth-child(n+5){display:none}
+}
+</style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="site-header">
-    <div class="page">
-      <div class="wordmark">Fitness</div>
-      <div class="header-meta" id="headerMeta">Loading…</div>
-    </div>
-  </header>
+<nav>
+  <div class="w">
+    <div class="logo">Fitness</div>
+    <div class="nav-r" id="navMeta">—</div>
+  </div>
+</nav>
 
-  <main class="page">
+<div class="w">
 
-    <!-- HERO: Stats + Heatmap -->
-    <section class="hero">
-      <!-- Stats -->
-      <div>
-        <div class="stat-eyebrow">Arpit's training log</div>
-        <div class="stats-grid">
-          <div>
-            <div class="stat-num" id="statSessions">—</div>
-            <div class="stat-lbl">Sessions</div>
-          </div>
-          <div>
-            <div class="stat-num" id="statCalories">—</div>
-            <div class="stat-lbl">Total kcal</div>
-          </div>
-          <div>
-            <div class="stat-num" id="statDuration">—</div>
-            <div class="stat-lbl">Avg duration</div>
-          </div>
-          <div>
-            <div class="stat-num" id="statHR">—</div>
-            <div class="stat-lbl">Avg heart rate</div>
-          </div>
-        </div>
+  <!-- CALENDAR -->
+  <section class="cal-sec">
+    <div class="cal-label" id="calLabel">Activity — last 52 weeks</div>
+    <div class="cal-wrap">
+      <!-- Day labels -->
+      <div class="cal-days">
+        <div class="cal-days-grid" id="calDays"></div>
       </div>
-
-      <!-- Heatmap -->
-      <div class="heatmap-col">
-        <div class="heatmap-eyebrow">Activity — last 26 weeks</div>
-        <div class="heatmap-months-wrap" id="hmMonths"></div>
-        <div class="heatmap-grid" id="hmGrid"></div>
-        <div class="heatmap-footer">
-          <span id="hmStats">—</span>
-          <div class="heatmap-legend">
-            <span>Less</span>
-            <div class="hm-cell" style="background:var(--heat-0)"></div>
-            <div class="hm-cell" style="background:var(--heat-1)"></div>
-            <div class="hm-cell" style="background:var(--heat-2)"></div>
-            <div class="hm-cell" style="background:var(--heat-3)"></div>
-            <div class="hm-cell" style="background:var(--heat-4)"></div>
-            <span>More</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FILTER TABS -->
-    <div class="filter-row">
-      <div class="filter-tabs">
-        <button class="ftab active" data-filter="all">All</button>
-        <button class="ftab" data-filter="badminton">🏸 Badminton</button>
-        <button class="ftab dim">🚶 Walking</button>
+      <!-- Grid -->
+      <div class="cal-body" style="min-width:0;overflow:hidden">
+        <div class="cal-months-row" id="calMonths"></div>
+        <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
-
-    <!-- FITNESS STAGE (collapsible, starts closed) -->
-    <div class="stage-wrap">
-      <div class="stage-card">
-        <div class="stage-trigger" id="stageTrigger">
-          <div class="stage-left">
-            <span class="stage-badge" id="stageBadge">—</span>
-            <span class="stage-tagline" id="stageTagline">Tap to see what your data says</span>
-          </div>
-          <svg class="stage-chevron" id="stageChevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M4 6l4 4 4-4"/>
-          </svg>
-        </div>
-        <div class="stage-body" id="stageBody">
-          <ul class="stage-bullets" id="stageBullets"></ul>
-          <p class="stage-summary" id="stageSummary"></p>
-        </div>
+    <div class="cal-foot">
+      <span class="cal-foot-stats" id="calStats">—</span>
+      <div class="cal-legend">
+        <span>Less</span>
+        <div class="hc" style="background:var(--h0)"></div>
+        <div class="hc" style="background:var(--h1)"></div>
+        <div class="hc" style="background:var(--h2)"></div>
+        <div class="hc" style="background:var(--h3)"></div>
+        <div class="hc" style="background:var(--h4)"></div>
+        <span>More</span>
       </div>
     </div>
+  </section>
 
-    <!-- CHARTS -->
-    <section class="charts-wrap">
-      <div class="section-eyebrow">Performance</div>
-      <div class="charts-grid">
+  <!-- METRICS STRIP -->
+  <section class="metrics-sec">
+    <div class="metrics-strip" id="metricStrip">
+      <div class="metric"><div class="m-lbl">Sessions</div><div class="m-num" id="mSess">—</div><div class="m-ctx" id="mSessCtx"></div></div>
+      <div class="metric"><div class="m-lbl">Total kcal</div><div class="m-num" id="mCal">—</div><div class="m-ctx" id="mCalCtx"></div></div>
+      <div class="metric"><div class="m-lbl">Avg duration</div><div class="m-num" id="mDur">—</div><div class="m-ctx" id="mDurCtx"></div></div>
+      <div class="metric"><div class="m-lbl">Avg HR</div><div class="m-num" id="mHR">—</div><div class="m-ctx" id="mHRCtx"></div></div>
+      <div class="metric"><div class="m-lbl">Avg load</div><div class="m-num" id="mLoad">—</div><div class="m-ctx" id="mLoadCtx"></div></div>
+    </div>
+  </section>
 
-        <!-- Training Load -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div class="chart-title">Training load</div>
-            <div class="chart-toggle">
-              <button class="tbtn active" data-c="cLoad" data-t="line">Line</button>
-              <button class="tbtn"        data-c="cLoad" data-t="bar">Bar</button>
-            </div>
-          </div>
-          <div class="chart-insight" id="ins-load">—</div>
-          <div class="chart-box"><canvas id="cLoad"></canvas></div>
-        </div>
+  <!-- CONTROLS -->
+  <div class="controls">
+    <!-- Activity filter -->
+    <div class="pill-group" id="actFilter">
+      <button class="pill on" data-f="all">All</button>
+      <button class="pill" data-f="badminton">🏸 Badminton</button>
+      <button class="pill dim">🚶 Walking</button>
+    </div>
+    <div class="ctrl-spacer"></div>
+    <!-- Section tabs -->
+    <div class="sec-tabs">
+      <button class="stab on" data-s="perf">Performance</button>
+      <button class="stab" data-s="recov">Recovery</button>
+    </div>
+    <!-- View toggle -->
+    <div class="pill-group" id="viewTog">
+      <button class="pill on" data-v="daily">Daily</button>
+      <button class="pill" data-v="weekly">Weekly</button>
+    </div>
+  </div>
 
-        <!-- Duration -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div class="chart-title">Session duration</div>
-            <div class="chart-toggle">
-              <button class="tbtn"        data-c="cDur" data-t="line">Line</button>
-              <button class="tbtn active" data-c="cDur" data-t="bar">Bar</button>
-            </div>
-          </div>
-          <div class="chart-insight" id="ins-dur">—</div>
-          <div class="chart-box"><canvas id="cDur"></canvas></div>
-        </div>
-
-        <!-- Calories -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div class="chart-title">Calories burned</div>
-            <div class="chart-toggle">
-              <button class="tbtn"        data-c="cCal" data-t="line">Line</button>
-              <button class="tbtn active" data-c="cCal" data-t="bar">Bar</button>
-            </div>
-          </div>
-          <div class="chart-insight" id="ins-cal">—</div>
-          <div class="chart-box"><canvas id="cCal"></canvas></div>
-        </div>
-
-        <!-- HR Zones -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div class="chart-title">Time in HR zones</div>
-          </div>
-          <div class="chart-insight" id="ins-zones">—</div>
-          <div class="chart-box"><canvas id="cZones"></canvas></div>
-          <div class="zone-legend">
-            <div class="zone-item"><div class="zone-dot" style="background:var(--z1)"></div>Z1 Warm-up</div>
-            <div class="zone-item"><div class="zone-dot" style="background:var(--z2)"></div>Z2 Easy</div>
-            <div class="zone-item"><div class="zone-dot" style="background:var(--z3)"></div>Z3 Aerobic</div>
-            <div class="zone-item"><div class="zone-dot" style="background:var(--z4)"></div>Z4 Threshold</div>
-            <div class="zone-item"><div class="zone-dot" style="background:var(--z5)"></div>Z5 Max</div>
-          </div>
-        </div>
-
-        <!-- Training Effect -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div class="chart-title">Training effect</div>
-          </div>
-          <div class="chart-insight" id="ins-te">—</div>
-          <div class="chart-box"><canvas id="cTE"></canvas></div>
-          <div class="zone-legend">
-            <div class="zone-item"><div class="zone-dot" style="background:var(--green)"></div>Aerobic TE</div>
-            <div class="zone-item"><div class="zone-dot" style="background:#CCC"></div>Anaerobic TE</div>
-          </div>
-        </div>
-
+  <!-- STAGE CARD -->
+  <div class="stage-wrap">
+    <div class="stage-card" id="stageCard">
+      <div class="stage-trg" id="stageTrg">
+        <span class="s-badge" id="sBadge">—</span>
+        <span class="s-tagline" id="sTagline">Tap to expand</span>
+        <svg class="s-chev" id="sChev" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l4 4 4-4"/></svg>
       </div>
-    </section>
+      <div class="stage-body" id="stageBody">
+        <ul class="s-bullets" id="sBullets"></ul>
+        <p class="s-para" id="sPara"></p>
+      </div>
+    </div>
+  </div>
 
-    <!-- SESSION LOG -->
-    <section class="sessions-wrap">
-      <div class="section-eyebrow">Sessions</div>
-      <table class="session-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Duration</th>
-            <th>Calories</th>
-            <th>Avg HR</th>
-            <th>Load</th>
-            <th>Effect</th>
-          </tr>
-        </thead>
-        <tbody id="sessionBody"></tbody>
-      </table>
-    </section>
+  <!-- PERFORMANCE SECTION -->
+  <section class="content" id="perfSec">
+    <div class="charts-grid">
 
-  </main>
+      <div class="cc">
+        <div class="cc-head">
+          <div class="cc-title">Training load</div>
+          <div class="tog"><button class="tb on" data-c="cLoad" data-t="line">Line</button><button class="tb" data-c="cLoad" data-t="bar">Bar</button></div>
+        </div>
+        <div class="cc-ins" id="iLoad">—</div>
+        <div class="cc-box"><canvas id="cLoad"></canvas></div>
+      </div>
 
-  <footer class="site-footer">
-    Synced from Garmin · <span id="footerDate">—</span>
-  </footer>
+      <div class="cc">
+        <div class="cc-head">
+          <div class="cc-title">Calories burned</div>
+          <div class="tog"><button class="tb" data-c="cCal" data-t="line">Line</button><button class="tb on" data-c="cCal" data-t="bar">Bar</button></div>
+        </div>
+        <div class="cc-ins" id="iCal">—</div>
+        <div class="cc-box"><canvas id="cCal"></canvas></div>
+      </div>
 
-  <script>
-  // ─── Chart.js defaults ─────────────────────────────────────────────────────
-  Chart.defaults.font.family = "'DM Sans', sans-serif";
-  Chart.defaults.font.size   = 11;
-  Chart.defaults.color       = '#999';
-  Chart.defaults.plugins.legend.display = false;
-  Chart.defaults.scale.grid.color       = '#F2F2F2';
-  Chart.defaults.scale.grid.drawBorder  = false;
-  Chart.defaults.elements.bar.borderRadius = 4;
-  Chart.defaults.elements.bar.borderWidth  = 0;
-  Chart.defaults.elements.line.tension     = 0.3;
-  Chart.defaults.elements.point.radius     = 4;
-  Chart.defaults.elements.point.hoverRadius = 6;
-  Chart.defaults.elements.point.backgroundColor = '#16A34A';
-  Chart.defaults.elements.point.borderColor     = '#16A34A';
+      <div class="cc">
+        <div class="cc-head">
+          <div class="cc-title">Session duration</div>
+          <div class="tog"><button class="tb on" data-c="cDur" data-t="line">Line</button><button class="tb" data-c="cDur" data-t="bar">Bar</button></div>
+        </div>
+        <div class="cc-ins" id="iDur">—</div>
+        <div class="cc-box"><canvas id="cDur"></canvas></div>
+      </div>
 
-  // ─── State ─────────────────────────────────────────────────────────────────
-  let ALL = [], FILTERED = [];
-  const CFG = {}; // chart configs for toggle
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Time in HR zones</div></div>
+        <div class="cc-ins" id="iZones">—</div>
+        <div class="cc-box"><canvas id="cZones"></canvas></div>
+        <div class="zlgd">
+          <div class="zi"><div class="zd" style="background:var(--z1)"></div>Z1 Warm-up</div>
+          <div class="zi"><div class="zd" style="background:var(--z2)"></div>Z2 Easy</div>
+          <div class="zi"><div class="zd" style="background:var(--z3)"></div>Z3 Aerobic</div>
+          <div class="zi"><div class="zd" style="background:var(--z4)"></div>Z4 Threshold</div>
+          <div class="zi"><div class="zd" style="background:var(--z5)"></div>Z5 Max</div>
+        </div>
+      </div>
 
-  // ─── Helpers ───────────────────────────────────────────────────────────────
-  // Local YYYY-MM-DD (avoids UTC offset shifting the date in IST)
-  function localDateStr(d) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Training effect</div></div>
+        <div class="cc-ins" id="iTE">—</div>
+        <div class="cc-box"><canvas id="cTE"></canvas></div>
+        <div class="zlgd">
+          <div class="zi"><div class="zd" style="background:var(--grn)"></div>Aerobic TE</div>
+          <div class="zi"><div class="zd" style="background:#CCC"></div>Anaerobic TE</div>
+        </div>
+      </div>
 
-  function fmtDate(s) {
-    return new Date(s + 'T00:00:00')
-      .toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  }
-  function fmtShort(s) {
-    return new Date(s + 'T00:00:00')
-      .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-  }
-  function fmtNum(n) { return new Intl.NumberFormat().format(n); }
-  function sortAsc(arr) {
-    return [...arr].sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
+    </div>
+  </section>
 
-  // Countup
-  function countUp(el, end, suffix = '') {
-    const dur = 400, t0 = performance.now();
-    function tick(t) {
-      const p = Math.min((t - t0) / dur, 1);
-      const v = Math.round(p * end);
-      el.textContent = fmtNum(v) + suffix;
-      if (p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
+  <!-- RECOVERY SECTION (hidden by default) -->
+  <section class="content" id="recovSec" style="display:none">
+    <div class="charts-grid">
 
-  // ─── Heatmap ───────────────────────────────────────────────────────────────
-  function heatColor(cal) {
-    if (!cal) return 'var(--heat-0)';
-    if (cal < 300) return 'var(--heat-1)';
-    if (cal < 450) return 'var(--heat-2)';
-    if (cal < 600) return 'var(--heat-3)';
-    return 'var(--heat-4)';
-  }
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Sleep score — last 30 days</div></div>
+        <div class="cc-ins" id="iSleep">—</div>
+        <div class="cc-box"><canvas id="cSleep"></canvas></div>
+      </div>
 
-  function buildHeatmap(sessions) {
-    const grid  = document.getElementById('hmGrid');
-    const mWrap = document.getElementById('hmMonths');
-    const stats = document.getElementById('hmStats');
-    grid.innerHTML  = '';
-    mWrap.innerHTML = '';
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Body battery charged per night</div></div>
+        <div class="cc-ins" id="iBB">—</div>
+        <div class="cc-box"><canvas id="cBB"></canvas></div>
+      </div>
 
-    const WEEKS    = 26;
-    const CELL     = 12;
-    const GAP      = 3;
-    const COL_W    = CELL + GAP; // 15px per column
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Sleep stages breakdown</div></div>
+        <div class="cc-ins" id="iStages">—</div>
+        <div class="cc-box"><canvas id="cStages"></canvas></div>
+        <div class="zlgd">
+          <div class="zi"><div class="zd" style="background:var(--sleep-deep)"></div>Deep</div>
+          <div class="zi"><div class="zd" style="background:var(--sleep-rem)"></div>REM</div>
+          <div class="zi"><div class="zd" style="background:var(--sleep-light)"></div>Light</div>
+          <div class="zi"><div class="zd" style="background:var(--sleep-wake)"></div>Awake</div>
+        </div>
+      </div>
 
-    // Session lookup keyed by local date string
-    const byDate = {};
-    sessions.forEach(s => {
-      if (!byDate[s.date]) byDate[s.date] = { cal: 0, dur: 0, type: s.activityType || 'activity' };
-      byDate[s.date].cal += s.calories;
-      byDate[s.date].dur += s.durationMinutes;
-    });
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Sleep score vs session load</div></div>
+        <div class="cc-ins" id="iCorr">—</div>
+        <div class="cc-box"><canvas id="cCorr"></canvas></div>
+      </div>
 
-    // Find start: Monday of the week 26 weeks ago
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dow = today.getDay(); // 0=Sun 1=Mon…6=Sat
-    const daysToMon = dow === 0 ? 6 : dow - 1; // days since last Monday
-    const thisMon = new Date(today);
-    thisMon.setDate(today.getDate() - daysToMon);
-    const start = new Date(thisMon);
-    start.setDate(thisMon.getDate() - (WEEKS - 1) * 7);
+    </div>
+  </section>
 
-    // Render cells (column-major: Mon top → Sun bottom)
-    let activeDays = 0, streak = 0, tempStreak = 0;
+  <!-- SESSION LOG -->
+  <div class="tbl-wrap">
+    <div class="tbl-label" id="tblLabel">Sessions</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>Type</th><th>Duration</th><th>Calories</th><th>Avg HR</th><th>Load</th><th>Sleep prior</th>
+        </tr>
+      </thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+  </div>
 
-    for (let week = 0; week < WEEKS; week++) {
-      for (let day = 0; day < 7; day++) {
-        const d = new Date(start);
-        d.setDate(start.getDate() + week * 7 + day);
-        const key = localDateStr(d);
-        const data = byDate[key];
-        const cell = document.createElement('div');
-        cell.className = 'hm-cell';
-        cell.style.background = heatColor(data?.cal);
+</div><!-- /w -->
 
-        if (data) {
-          activeDays++;
-          tempStreak++;
-          const dayName = d.toLocaleDateString('en-GB', { weekday: 'short' });
-          const dayFmt  = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-          const type = data.type.charAt(0).toUpperCase() + data.type.slice(1);
-          cell.dataset.tip = `${dayName} ${dayFmt} · ${type} · ${data.cal} kcal · ${Math.round(data.dur)} min`;
-          cell.style.cursor = 'pointer';
-        } else {
-          if (tempStreak > streak) streak = tempStreak;
-          tempStreak = 0;
-        }
-        grid.appendChild(cell);
-      }
-    }
-    if (tempStreak > streak) streak = tempStreak;
+<footer>Synced from Garmin · <span id="footDate">—</span></footer>
 
-    // Month labels — absolutely positioned above the grid
-    mWrap.style.width = `${WEEKS * COL_W - GAP}px`;
-    let lastMonth = -1;
-    for (let week = 0; week < WEEKS; week++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + week * 7);
-      const mo = d.getMonth();
-      if (mo !== lastMonth) {
-        const lbl = document.createElement('span');
-        lbl.className  = 'heatmap-month-lbl';
-        lbl.textContent = d.toLocaleDateString('en-GB', { month: 'short' });
-        lbl.style.left  = `${week * COL_W}px`;
-        mWrap.appendChild(lbl);
-        lastMonth = mo;
-      }
-    }
+<script>
+// ── Chart.js defaults ───────────────────────────────────────────────────────
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size   = 10;
+Chart.defaults.color       = '#AAAAAA';
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.scale.grid.color       = '#F2F2F2';
+Chart.defaults.scale.grid.drawBorder  = false;
+Chart.defaults.elements.bar.borderRadius = 4;
+Chart.defaults.elements.bar.borderWidth  = 0;
+Chart.defaults.elements.line.tension     = 0.3;
+Chart.defaults.elements.point.radius     = 3;
+Chart.defaults.elements.point.hoverRadius = 5;
+Chart.defaults.elements.point.backgroundColor = '#1A7F4B';
+Chart.defaults.elements.point.borderColor     = '#1A7F4B';
 
-    stats.textContent = `${activeDays} active day${activeDays !== 1 ? 's' : ''} · Streak: ${streak} day${streak !== 1 ? 's' : ''}`;
-  }
+// ── State ───────────────────────────────────────────────────────────────────
+let SESS = [], SLEEP = [], FILTERED = [];
+let activeFilter = 'all', activeSection = 'perf', activeView = 'daily';
+const CFG = {};
 
-  // ─── Insight generators ────────────────────────────────────────────────────
-  function insLoad(ss) {
-    if (!ss.length) return '';
-    const s = sortAsc(ss);
-    const peak = ss.reduce((m, x) => x.trainingLoad > m.trainingLoad ? x : m, ss[0]);
-    const rec3 = s.slice(-3);
-    const avg3 = (rec3.reduce((t, x) => t + x.trainingLoad, 0) / rec3.length).toFixed(1);
-    return `Peak ${peak.trainingLoad.toFixed(1)} on ${fmtShort(peak.date)}. Recent 3-session avg: ${avg3}.`;
-  }
-  function insDur(ss) {
-    if (!ss.length) return '';
-    const s = sortAsc(ss);
-    const avg = (s.reduce((t, x) => t + x.durationMinutes, 0) / s.length).toFixed(0);
-    if (s.length === 1) return `One session: ${avg} min.`;
-    const first = s[0].durationMinutes || 1;
-    const last  = s[s.length - 1].durationMinutes;
-    const pct   = ((last - first) / first * 100).toFixed(0);
-    if (pct > 5)  return `Sessions trending longer (+${pct}% first→last). Avg ${avg} min.`;
-    if (pct < -5) return `Sessions getting shorter (${pct}% first→last). Avg ${avg} min.`;
-    return `Consistent session length. Avg ${avg} min.`;
-  }
-  function insCal(ss) {
-    if (!ss.length) return '';
-    const total = ss.reduce((t, x) => t + x.calories, 0);
-    const best  = ss.reduce((m, x) => x.calories > m.calories ? x : m, ss[0]);
-    return `${fmtNum(total)} kcal total. Best: ${best.calories} kcal on ${fmtShort(best.date)}.`;
-  }
-  function insZones(ss) {
-    if (!ss.length) return '';
-    const z2 = ss.reduce((t, x) => t + (x.hrZone2Sec || 0), 0);
-    const z3 = ss.reduce((t, x) => t + (x.hrZone3Sec || 0), 0);
-    const all = ss.reduce((t, x) =>
-      t + (x.hrZone1Sec||0)+(x.hrZone2Sec||0)+(x.hrZone3Sec||0)+(x.hrZone4Sec||0)+(x.hrZone5Sec||0), 0);
-    const pct = all > 0 ? (((z2 + z3) / all) * 100).toFixed(0) : 0;
-    return `${pct}% of time in zones 2–3 — solid aerobic base work.`;
-  }
-  function insTE(ss) {
-    if (!ss.length) return '';
-    const aA = (ss.reduce((t, x) => t + (x.aerobicTE  || 0), 0) / ss.length).toFixed(1);
-    const aN = (ss.reduce((t, x) => t + (x.anaerobicTE || 0), 0) / ss.length).toFixed(1);
-    return `Avg aerobic TE ${aA} · anaerobic TE ${aN}. Aerobic foundation dominant.`;
-  }
+// ── Utils ───────────────────────────────────────────────────────────────────
+const localDs = d => {
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+};
+const fmtD   = s => new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const fmtSh  = s => new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const fmtN   = n => new Intl.NumberFormat().format(Math.round(n));
+const asc    = a => [...a].sort((x,y) => new Date(x.date)-new Date(y.date));
+const avg    = (a,f) => a.length ? a.reduce((t,x)=>t+(f(x)||0),0)/a.length : 0;
 
-  // ─── Fitness stage ─────────────────────────────────────────────────────────
-  function fitnessStage(ss) {
-    if (!ss.length) return { stage: 'No data', tagline: 'Add sessions to get insights', color: '#999', bullets: [], summary: '' };
-    const s = sortAsc(ss);
-    const avgLoad = ss.reduce((t, x) => t + x.trainingLoad, 0) / ss.length;
-    const trend   = s.length > 1 ? s[s.length-1].trainingLoad - s[0].trainingLoad : 0;
-    const z45     = ss.reduce((t, x) => t + (x.hrZone4Sec||0) + (x.hrZone5Sec||0), 0);
-    const zAll    = ss.reduce((t, x) =>
-      t+(x.hrZone1Sec||0)+(x.hrZone2Sec||0)+(x.hrZone3Sec||0)+(x.hrZone4Sec||0)+(x.hrZone5Sec||0), 0);
-    const iPct = zAll > 0 ? (z45 / zAll) * 100 : 0;
-
-    if (avgLoad < 25) return {
-      stage: 'Getting Started', color: '#888',
-      tagline: 'Building the habit — consistency is the whole job right now',
-      bullets: [
-        `Avg load ${avgLoad.toFixed(1)} — early stage, body still adapting`,
-        'Focus on frequency, not intensity',
-        'Two to three sessions/week for 4 weeks builds the foundation',
-      ],
-      summary: "You're in the habit-building phase. The most important thing is showing up consistently. Don't worry about intensity yet — the aerobic base comes from accumulated easy work."
-    };
-
-    if (avgLoad < 55 && iPct < 6) return {
-      stage: 'Building Aerobic Base', color: '#16A34A',
-      tagline: `Avg load ${avgLoad.toFixed(1)} · ${trend > 0 ? 'load trending up ↑' : 'steady load'}`,
-      bullets: [
-        `Load avg ${avgLoad.toFixed(1)} — solid aerobic work accumulating`,
-        trend > 0
-          ? 'Load trending upward — progressive overload is happening'
-          : 'Load is consistent — good maintenance frequency',
-        'Zone 2–3 dominant — exactly right for this phase',
-        'Body battery recovery cost low — you\'re adapting well',
-      ],
-      summary: "You're in the most important phase of any sport. Zone 2–3 work builds the cardiovascular engine that compounds into better court speed and endurance. Keep frequency consistent for the next 6–8 weeks before adding intensity."
-    };
-
-    if (avgLoad < 80) return {
-      stage: 'Developing Fitness', color: '#2563EB',
-      tagline: `Load avg ${avgLoad.toFixed(1)} · ${iPct.toFixed(0)}% in zones 4–5`,
-      bullets: [
-        `Load avg ${avgLoad.toFixed(1)} — aerobic base is solid`,
-        `${iPct.toFixed(0)}% time in zones 4–5 — intensity developing`,
-        'Anaerobic capacity starting to build alongside the aerobic base',
-      ],
-      summary: "Your foundation is built. You're entering the phase where sport-specific fitness develops. Watch recovery closely — at this load, one skipped rest day compounds into fatigue."
-    };
-
-    return {
-      stage: 'Performance Phase', color: '#DC2626',
-      tagline: `Avg load ${avgLoad.toFixed(1)} · high intensity training`,
-      bullets: [
-        `Avg load ${avgLoad.toFixed(1)} — serious training volume`,
-        `${iPct.toFixed(0)}% in zones 4–5 — regularly pushing threshold`,
-        'Recovery quality now equals training quality in importance',
-      ],
-      summary: "You're training at a high level. Sleep, nutrition, and rest days are as important as the sessions themselves. One poorly managed recovery block will undo multiple good training weeks."
-    };
-  }
-
-  // ─── Charts (destroy/recreate for type toggle — Chart.js 4.x) ───────────
-  function mkChart(id, type, data, opts) {
-    const canvas = document.getElementById(id);
-    const ex = Chart.getChart(canvas);
-    if (ex) ex.destroy();
-    // Deep-copy data so mutations don't corrupt the stored config
-    CFG[id] = { data: JSON.parse(JSON.stringify(data)), opts };
-    return new Chart(canvas, { type, data, options: opts });
-  }
-
-  const BASE_OPTS = {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: { duration: 600, easing: 'easeOutQuart' },
-    scales: {
-      x: { grid: { display: false }, ticks: { maxRotation: 0 } },
-      y: { beginAtZero: true }
-    }
+function countUp(el, end, sfx='') {
+  const dur=500, t0=performance.now();
+  const tick = t => {
+    const p = Math.min((t-t0)/dur,1);
+    el.textContent = fmtN(p*end)+sfx;
+    if(p<1) requestAnimationFrame(tick);
   };
+  requestAnimationFrame(tick);
+}
 
-  function renderCharts(ss) {
-    const s = sortAsc(ss);
-    const lbl = s.map(x => fmtShort(x.date));
+// ── Heatmap ─────────────────────────────────────────────────────────────────
+function heatCol(cal) {
+  if(!cal) return 'var(--h0)';
+  if(cal<300) return 'var(--h1)';
+  if(cal<450) return 'var(--h2)';
+  if(cal<600) return 'var(--h3)';
+  return 'var(--h4)';
+}
 
-    document.getElementById('ins-load').textContent  = insLoad(ss);
-    document.getElementById('ins-dur').textContent   = insDur(ss);
-    document.getElementById('ins-cal').textContent   = insCal(ss);
-    document.getElementById('ins-zones').textContent = insZones(ss);
-    document.getElementById('ins-te').textContent    = insTE(ss);
+function buildCal(sessions) {
+  const grid  = document.getElementById('calGrid');
+  const months= document.getElementById('calMonths');
+  const days  = document.getElementById('calDays');
+  const stats = document.getElementById('calStats');
+  grid.innerHTML = months.innerHTML = days.innerHTML = '';
 
-    // Training load (line default)
-    mkChart('cLoad', 'line', {
-      labels: lbl,
-      datasets: [{ data: s.map(x => x.trainingLoad), borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,.08)', fill: true }]
-    }, BASE_OPTS);
-
-    // Duration (bar default)
-    mkChart('cDur', 'bar', {
-      labels: lbl,
-      datasets: [{ data: s.map(x => +x.durationMinutes.toFixed(1)), backgroundColor: '#16A34A' }]
-    }, { ...BASE_OPTS, scales: { ...BASE_OPTS.scales, y: { beginAtZero: true, title: { display: true, text: 'min' } } } });
-
-    // Calories (bar default)
-    mkChart('cCal', 'bar', {
-      labels: lbl,
-      datasets: [{ data: s.map(x => x.calories), backgroundColor: '#16A34A' }]
-    }, { ...BASE_OPTS, scales: { ...BASE_OPTS.scales, y: { beginAtZero: true, title: { display: true, text: 'kcal' } } } });
-
-    // HR Zones (stacked bar)
-    const zoneOpts = {
-      ...BASE_OPTS,
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0 } },
-        y: { stacked: true, beginAtZero: true, title: { display: true, text: 'min' } }
-      }
-    };
-    mkChart('cZones', 'bar', {
-      labels: lbl,
-      datasets: [
-        { label: 'Z1', data: s.map(x => +(( x.hrZone1Sec||0)/60).toFixed(1)), backgroundColor: '#BFDBFE' },
-        { label: 'Z2', data: s.map(x => +(( x.hrZone2Sec||0)/60).toFixed(1)), backgroundColor: '#6EE7B7' },
-        { label: 'Z3', data: s.map(x => +(( x.hrZone3Sec||0)/60).toFixed(1)), backgroundColor: '#FDE68A' },
-        { label: 'Z4', data: s.map(x => +(( x.hrZone4Sec||0)/60).toFixed(1)), backgroundColor: '#FCA5A5' },
-        { label: 'Z5', data: s.map(x => +(( x.hrZone5Sec||0)/60).toFixed(1)), backgroundColor: '#F87171' },
-      ]
-    }, zoneOpts);
-
-    // Training effect (grouped bar)
-    mkChart('cTE', 'bar', {
-      labels: lbl,
-      datasets: [
-        { label: 'Aerobic',    data: s.map(x => x.aerobicTE  || 0), backgroundColor: '#16A34A' },
-        { label: 'Anaerobic',  data: s.map(x => x.anaerobicTE|| 0), backgroundColor: '#CCC' }
-      ]
-    }, { ...BASE_OPTS, scales: { ...BASE_OPTS.scales, y: { beginAtZero: true, max: 5, title: { display: true, text: 'TE' } } } });
-  }
-
-  // ─── Stats ─────────────────────────────────────────────────────────────────
-  function renderStats(ss) {
-    const n   = ss.length;
-    const cal = ss.reduce((t, x) => t + x.calories, 0);
-    const dur = n ? Math.round(ss.reduce((t, x) => t + x.durationMinutes, 0) / n) : 0;
-    const hr  = n ? Math.round(ss.reduce((t, x) => t + x.avgHR, 0) / n) : 0;
-    countUp(document.getElementById('statSessions'), n);
-    countUp(document.getElementById('statCalories'), cal);
-    countUp(document.getElementById('statDuration'), dur, ' min');
-    countUp(document.getElementById('statHR'), hr, ' bpm');
-  }
-
-  // ─── Stage card ────────────────────────────────────────────────────────────
-  function renderStage(ss) {
-    const f = fitnessStage(ss);
-    const badge   = document.getElementById('stageBadge');
-    const tagline = document.getElementById('stageTagline');
-    const bullets = document.getElementById('stageBullets');
-    const summary = document.getElementById('stageSummary');
-
-    badge.textContent = f.stage;
-    badge.style.background = f.color + '22';
-    badge.style.color      = f.color;
-
-    tagline.textContent = f.tagline;
-    bullets.innerHTML   = f.bullets.map(b => `<li>${b}</li>`).join('');
-    summary.textContent = f.summary;
-
-    document.querySelector('.stage-card').style.borderLeftColor = f.color;
-  }
-
-  // Toggle collapse
-  document.getElementById('stageTrigger').addEventListener('click', () => {
-    const body    = document.getElementById('stageBody');
-    const chevron = document.getElementById('stageChevron');
-    const isOpen  = body.classList.contains('open');
-    body.classList.toggle('open', !isOpen);
-    chevron.classList.toggle('open', !isOpen);
+  // Build session lookup by local date
+  const byDate = {};
+  sessions.forEach(s => {
+    const k = s.date;
+    if(!byDate[k]) byDate[k]={cal:0,dur:0,type:s.activityType||'activity'};
+    byDate[k].cal += s.calories;
+    byDate[k].dur += s.durationMinutes;
   });
 
-  // ─── Session table ─────────────────────────────────────────────────────────
-  function renderTable(ss) {
-    const tbody = document.getElementById('sessionBody');
-    tbody.innerHTML = '';
-    const sorted = [...ss].sort((a, b) => new Date(b.date) - new Date(a.date));
+  // Determine number of weeks based on container width
+  const bodyW = document.querySelector('.cal-body').offsetWidth || 600;
+  const CELL=10, GAP=2, COL=CELL+GAP;
+  const WEEKS = Math.min(52, Math.max(26, Math.floor((bodyW) / COL)));
 
-    sorted.forEach(s => {
-      const tr = document.createElement('tr');
-      tr.className = 's-row';
-      tr.dataset.id = s.activityId;
-      tr.innerHTML = `
-        <td>${fmtDate(s.date)}</td>
-        <td><span class="s-type-badge">🏸 ${s.activityType || 'Badminton'}</span></td>
-        <td>${s.durationMinutes.toFixed(0)} min</td>
-        <td>${fmtNum(s.calories)} kcal</td>
-        <td>${s.avgHR} bpm</td>
-        <td>${s.trainingLoad.toFixed(1)}</td>
-        <td>${s.aerobicTE.toFixed(1)} / ${s.anaerobicTE.toFixed(1)}</td>`;
+  // Start: Monday of current week, go back WEEKS-1 weeks
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dow = today.getDay(); // 0=Sun
+  const daysToMon = dow===0?6:dow-1;
+  const thisMon = new Date(today); thisMon.setDate(today.getDate()-daysToMon);
+  const start   = new Date(thisMon); start.setDate(thisMon.getDate()-(WEEKS-1)*7);
+
+  document.getElementById('calLabel').textContent = `Activity — last ${WEEKS} weeks`;
+
+  // Day labels: Mon / Wed / Fri
+  const dayNames = ['Mon','','Wed','','Fri','',''];
+  const dg = document.createElement('div');
+  dg.className = 'cal-days-grid';
+  dayNames.forEach(n => {
+    const s = document.createElement('span');
+    s.textContent = n;
+    dg.appendChild(s);
+  });
+  days.appendChild(dg);
+
+  // Month labels row
+  months.style.width = `${WEEKS*COL-GAP}px`;
+  let lastMo = -1;
+  for(let w=0;w<WEEKS;w++){
+    const d=new Date(start); d.setDate(start.getDate()+w*7);
+    if(d.getMonth()!==lastMo){
+      const lbl=document.createElement('span');
+      lbl.className='cal-mlbl';
+      lbl.textContent=d.toLocaleDateString('en-GB',{month:'short'});
+      lbl.style.left=`${w*COL}px`;
+      months.appendChild(lbl);
+      lastMo=d.getMonth();
+    }
+  }
+
+  // Cells
+  let activeDays=0, streak=0, cur=0;
+  for(let w=0;w<WEEKS;w++){
+    for(let day=0;day<7;day++){
+      const d=new Date(start); d.setDate(start.getDate()+w*7+day);
+      if(d>today){const c=document.createElement('div');c.className='hc';c.style.background='transparent';grid.appendChild(c);continue;}
+      const key=localDs(d);
+      const data=byDate[key];
+      const cell=document.createElement('div');
+      cell.className='hc';
+      cell.style.background=heatCol(data?.cal);
+      if(data){
+        activeDays++; cur++;
+        if(cur>streak) streak=cur;
+        const dn=d.toLocaleDateString('en-GB',{weekday:'short'});
+        const df=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+        const tp=`${dn} ${df} · ${data.type.charAt(0).toUpperCase()+data.type.slice(1)} · ${data.cal} kcal`;
+        const tip=document.createElement('div');
+        tip.className='hc-tip';
+        tip.textContent=tp;
+        cell.appendChild(tip);
+      } else { cur=0; }
+      grid.appendChild(cell);
+    }
+  }
+  stats.textContent=`${activeDays} active day${activeDays!==1?'s':''} · Current streak: ${streak} day${streak!==1?'s':''}`;
+}
+
+// ── Metrics ─────────────────────────────────────────────────────────────────
+function renderMetrics(ss) {
+  const n   = ss.length;
+  const cal = ss.reduce((t,x)=>t+x.calories,0);
+  const dur = n?avg(ss,x=>x.durationMinutes):0;
+  const hr  = n?avg(ss,x=>x.avgHR):0;
+  const ld  = n?avg(ss,x=>x.trainingLoad):0;
+  const s   = asc(ss);
+
+  countUp(document.getElementById('mSess'), n);
+  countUp(document.getElementById('mCal'),  cal);
+  countUp(document.getElementById('mDur'),  dur, ' min');
+  countUp(document.getElementById('mHR'),   hr,  ' bpm');
+  document.getElementById('mLoad').textContent = ld.toFixed(1);
+
+  // Contexts
+  const best = n ? ss.reduce((m,x)=>x.trainingLoad>m.trainingLoad?x:m,ss[0]) : null;
+  document.getElementById('mSessCtx').textContent  = 'since May 2026';
+  document.getElementById('mCalCtx').textContent   = `${n?Math.round(cal/n):0} avg per session`;
+  document.getElementById('mDurCtx').textContent   = s.length>1?(dur>s[0].durationMinutes?'↑ trending longer':'stable'):'';
+  document.getElementById('mHRCtx').textContent    = hr<115?'easy zone':hr<130?'aerobic zone':'pushing hard';
+  document.getElementById('mLoadCtx').textContent  = best?`peak ${best.trainingLoad.toFixed(1)} on ${fmtSh(best.date)}`:'';
+}
+
+// ── Stage card ───────────────────────────────────────────────────────────────
+function renderStage(ss) {
+  if(!ss.length) return;
+  const s    = asc(ss);
+  const avgL = avg(ss,x=>x.trainingLoad);
+  const trend= s.length>1?s[s.length-1].trainingLoad-s[0].trainingLoad:0;
+  const z45  = ss.reduce((t,x)=>t+(x.hrZone4Sec||0)+(x.hrZone5Sec||0),0);
+  const zAll = ss.reduce((t,x)=>t+(x.hrZone1Sec||0)+(x.hrZone2Sec||0)+(x.hrZone3Sec||0)+(x.hrZone4Sec||0)+(x.hrZone5Sec||0),0);
+  const iPct = zAll>0?(z45/zAll)*100:0;
+
+  let stage, color, tagline, bullets, para;
+  if(avgL<25){
+    stage='Getting Started'; color='#888';
+    tagline=`Avg load ${avgL.toFixed(1)} · building consistency`;
+    bullets=['Low training load — early adaptation phase','Showing up is the entire job right now','Focus: frequency over intensity'];
+    para="You're establishing the habit. Consistent easy sessions for 4 weeks creates the base everything else builds on.";
+  } else if(avgL<55&&iPct<6){
+    stage='Building Aerobic Base'; color='#1A7F4B';
+    tagline=`Avg load ${avgL.toFixed(1)} · load ${trend>0?'trending up ↑':'stable'}`;
+    bullets=[
+      `Avg load ${avgL.toFixed(1)} — solid aerobic work accumulating`,
+      trend>0?'Load trending upward — progressive overload is happening':'Consistent load — good maintenance frequency',
+      'Zone 2–3 dominant — exactly right for this phase',
+      'Low body battery cost per session — recovery keeping pace with training'
+    ];
+    para="You're in the most important training phase. Zone 2–3 work compounds into better court speed and endurance over 6–8 weeks. Keep frequency consistent before adding intensity.";
+  } else if(avgL<80){
+    stage='Developing Fitness'; color='#2563EB';
+    tagline=`Avg load ${avgL.toFixed(1)} · ${iPct.toFixed(0)}% in zones 4–5`;
+    bullets=['Aerobic base is solid','Higher intensity developing — anaerobic capacity building','Watch recovery closely at this load level'];
+    para="Foundation is built. Sport-specific fitness develops now. Monitor sleep and HRV — at this volume, recovery quality equals training quality.";
+  } else {
+    stage='Performance Phase'; color='#DC2626';
+    tagline=`Avg load ${avgL.toFixed(1)} · high-intensity training`;
+    bullets=['High training volume','Regularly in zones 4–5','Recovery management is critical'];
+    para="Training at a high level. Sleep, nutrition, and rest days are as important as sessions. One bad recovery block undoes multiple good training weeks.";
+  }
+
+  document.getElementById('sBadge').textContent    = stage;
+  document.getElementById('sBadge').style.background = color+'20';
+  document.getElementById('sBadge').style.color      = color;
+  document.getElementById('sTagline').textContent   = tagline;
+  document.getElementById('sBullets').innerHTML     = bullets.map(b=>`<li>${b}</li>`).join('');
+  document.getElementById('sPara').textContent      = para;
+  document.querySelector('.stage-card').style.borderLeftColor = color;
+}
+
+document.getElementById('stageTrg').addEventListener('click',()=>{
+  const b=document.getElementById('stageBody');
+  const c=document.getElementById('sChev');
+  const open=b.classList.contains('open');
+  b.classList.toggle('open',!open);
+  c.classList.toggle('open',!open);
+});
+
+// ── Chart helpers ────────────────────────────────────────────────────────────
+const BASE = {
+  responsive:true, maintainAspectRatio:false,
+  animation:{duration:500,easing:'easeOutQuart'},
+  scales:{
+    x:{grid:{display:false},ticks:{maxRotation:0}},
+    y:{beginAtZero:true}
+  }
+};
+
+function mk(id, type, data, opts) {
+  const cv = document.getElementById(id);
+  if(!cv) return;
+  const ex = Chart.getChart(cv);
+  if(ex) ex.destroy();
+  CFG[id] = {data:JSON.parse(JSON.stringify(data)), opts};
+  return new Chart(cv,{type,data,options:opts});
+}
+
+// ── Performance charts ───────────────────────────────────────────────────────
+function renderPerf(ss) {
+  const s   = asc(ss);
+  const lbl = s.map(x=>fmtSh(x.date));
+  const grn = '#1A7F4B';
+
+  // Insights
+  const peakL = ss.length?ss.reduce((m,x)=>x.trainingLoad>m.trainingLoad?x:m,ss[0]):null;
+  const avgDur = ss.length?avg(ss,x=>x.durationMinutes).toFixed(0):0;
+  const totCal = ss.reduce((t,x)=>t+x.calories,0);
+  const bestCal= ss.length?ss.reduce((m,x)=>x.calories>m.calories?x:m,ss[0]):null;
+  const z2t  = ss.reduce((t,x)=>t+(x.hrZone2Sec||0),0);
+  const z3t  = ss.reduce((t,x)=>t+(x.hrZone3Sec||0),0);
+  const zAll = ss.reduce((t,x)=>t+(x.hrZone1Sec||0)+(x.hrZone2Sec||0)+(x.hrZone3Sec||0)+(x.hrZone4Sec||0)+(x.hrZone5Sec||0),0);
+  const z23p = zAll>0?((z2t+z3t)/zAll*100).toFixed(0):0;
+  const aAero= ss.length?avg(ss,x=>x.aerobicTE).toFixed(1):0;
+  const aAna = ss.length?avg(ss,x=>x.anaerobicTE).toFixed(1):0;
+
+  document.getElementById('iLoad').textContent  = peakL?`Peak ${peakL.trainingLoad.toFixed(1)} on ${fmtSh(peakL.date)}. ${s.length>2&&s[s.length-1].trainingLoad>s[0].trainingLoad?'Trending up ↑.':'Stable load.'}` : '—';
+  document.getElementById('iCal').textContent   = bestCal?`${fmtN(totCal)} kcal total. Best: ${bestCal.calories} kcal on ${fmtSh(bestCal.date)}.`:'—';
+  document.getElementById('iDur').textContent   = `Avg ${avgDur} min. ${s.length>1&&s[s.length-1].durationMinutes>s[0].durationMinutes?'Sessions getting longer.':'Consistent length.'}`;
+  document.getElementById('iZones').textContent = `${z23p}% of court time in zones 2–3 — aerobic base work.`;
+  document.getElementById('iTE').textContent    = `Avg aerobic TE ${aAero} · anaerobic ${aAna}. Aerobic foundation dominant.`;
+
+  mk('cLoad','line',{labels:lbl,datasets:[{data:s.map(x=>+x.trainingLoad.toFixed(1)),borderColor:grn,backgroundColor:'rgba(26,127,75,.07)',fill:true}]},BASE);
+  mk('cCal', 'bar', {labels:lbl,datasets:[{data:s.map(x=>x.calories),backgroundColor:grn}]},{...BASE,scales:{...BASE.scales,y:{beginAtZero:true,title:{display:false}}}});
+  mk('cDur', 'line',{labels:lbl,datasets:[{data:s.map(x=>+x.durationMinutes.toFixed(1)),borderColor:grn,backgroundColor:'rgba(26,127,75,.07)',fill:true}]},BASE);
+  mk('cZones','bar',{labels:lbl,datasets:[
+    {data:s.map(x=>+((x.hrZone1Sec||0)/60).toFixed(1)),backgroundColor:'var(--z1)',label:'Z1'},
+    {data:s.map(x=>+((x.hrZone2Sec||0)/60).toFixed(1)),backgroundColor:'var(--z2)',label:'Z2'},
+    {data:s.map(x=>+((x.hrZone3Sec||0)/60).toFixed(1)),backgroundColor:'var(--z3)',label:'Z3'},
+    {data:s.map(x=>+((x.hrZone4Sec||0)/60).toFixed(1)),backgroundColor:'var(--z4)',label:'Z4'},
+    {data:s.map(x=>+((x.hrZone5Sec||0)/60).toFixed(1)),backgroundColor:'var(--z5)',label:'Z5'},
+  ]},{...BASE,scales:{x:{stacked:true,grid:{display:false},ticks:{maxRotation:0}},y:{stacked:true,beginAtZero:true}}});
+  mk('cTE','bar',{labels:lbl,datasets:[
+    {data:s.map(x=>x.aerobicTE||0),  backgroundColor:'#1A7F4B',label:'Aerobic'},
+    {data:s.map(x=>x.anaerobicTE||0),backgroundColor:'#CCC',   label:'Anaerobic'},
+  ]},{...BASE,scales:{...BASE.scales,y:{beginAtZero:true,max:5}}});
+}
+
+// ── Recovery charts ──────────────────────────────────────────────────────────
+function renderRecov(sleep, sessions) {
+  const sl = sleep.filter(x=>x.sleepScore!=null).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const lbl = sl.map(x=>fmtSh(x.date));
+  const avgSl = sl.length?avg(sl,x=>x.sleepScore).toFixed(0):0;
+  const avgBB = sl.length?avg(sl,x=>x.bodyBatteryCharged).toFixed(0):0;
+
+  // Sleep insight
+  const best = sl.length?sl.reduce((m,x)=>x.sleepScore>m.sleepScore?x:m,sl[0]):null;
+  const worst= sl.length?sl.reduce((m,x)=>x.sleepScore<m.sleepScore?x:m,sl[0]):null;
+  document.getElementById('iSleep').textContent = sl.length?`30d avg: ${avgSl}. Best: ${best.sleepScore} on ${fmtSh(best.date)}. Worst: ${worst.sleepScore} on ${fmtSh(worst.date)}.`:'—';
+  document.getElementById('iBB').textContent    = sl.length?`Avg ${avgBB} pts charged per night. Higher = more recovered going into the day.`:'—';
+  document.getElementById('iStages').textContent= 'Deep sleep is the most restorative. REM drives cognitive recovery.';
+
+  // Correlation insight
+  const paired = sessions.filter(s=>s.priorSleepScore!=null);
+  if(paired.length>1){
+    const hi=paired.reduce((m,x)=>x.priorSleepScore>m.priorSleepScore?x:m,paired[0]);
+    const lo=paired.reduce((m,x)=>x.priorSleepScore<m.priorSleepScore?x:m,paired[0]);
+    document.getElementById('iCorr').textContent=`Best session (load ${hi.trainingLoad.toFixed(1)}) followed sleep score ${hi.priorSleepScore}. Worst (load ${lo.trainingLoad.toFixed(1)}) followed score ${lo.priorSleepScore}. Sleep quality affects output.`;
+  } else {
+    document.getElementById('iCorr').textContent='More sessions needed for correlation analysis.';
+  }
+
+  // Sleep score line
+  mk('cSleep','line',{labels:lbl,datasets:[{
+    data:sl.map(x=>x.sleepScore),
+    borderColor:'#4F46E5',backgroundColor:'rgba(79,70,229,.07)',fill:true,
+    segment:{borderColor:ctx=>ctx.p1.parsed.y>=75?'#1A7F4B':ctx.p1.parsed.y>=60?'#D97706':'#DC2626'}
+  }]},{...BASE,scales:{...BASE.scales,y:{min:0,max:100,beginAtZero:false}}});
+
+  // Body battery bar
+  mk('cBB','bar',{labels:lbl,datasets:[{
+    data:sl.map(x=>x.bodyBatteryCharged),
+    backgroundColor:sl.map(x=>x.bodyBatteryCharged>=60?'#1A7F4B':x.bodyBatteryCharged>=40?'#D97706':'#DC2626')
+  }]},{...BASE});
+
+  // Sleep stages stacked
+  mk('cStages','bar',{labels:lbl,datasets:[
+    {data:sl.map(x=>+((x.deepSec||0)/3600).toFixed(1)),backgroundColor:'var(--sleep-deep)',label:'Deep'},
+    {data:sl.map(x=>+((x.remSec||0)/3600).toFixed(1)), backgroundColor:'var(--sleep-rem)', label:'REM'},
+    {data:sl.map(x=>+((x.lightSec||0)/3600).toFixed(1)),backgroundColor:'var(--sleep-light)',label:'Light'},
+    {data:sl.map(x=>+((x.awakeSec||0)/3600).toFixed(1)),backgroundColor:'var(--sleep-wake)',label:'Awake'},
+  ]},{...BASE,scales:{x:{stacked:true,grid:{display:false},ticks:{maxRotation:0}},y:{stacked:true,beginAtZero:true,title:{display:true,text:'hrs'}}}});
+
+  // Correlation scatter: prior sleep score vs training load
+  const scatterData = sessions
+    .filter(s=>s.priorSleepScore!=null&&s.trainingLoad!=null)
+    .map(s=>({x:s.priorSleepScore,y:s.trainingLoad,label:fmtSh(s.date)}));
+
+  mk('cCorr','scatter',{
+    datasets:[{
+      data:scatterData,
+      backgroundColor:'#1A7F4B',
+      pointRadius:6,
+      pointHoverRadius:8,
+    }]
+  },{
+    responsive:true,maintainAspectRatio:false,
+    animation:{duration:500},
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.raw.label}: sleep ${ctx.raw.x}, load ${ctx.raw.y.toFixed(1)}`}}
+    },
+    scales:{
+      x:{title:{display:true,text:'Sleep score (night before)'},min:0,max:100,grid:{color:'#F2F2F2'},beginAtZero:true},
+      y:{title:{display:true,text:'Training load'},beginAtZero:true,grid:{color:'#F2F2F2'}}
+    }
+  });
+}
+
+// ── Session table ────────────────────────────────────────────────────────────
+function renderTable(ss, view) {
+  const tbody = document.getElementById('tblBody');
+  const lbl   = document.getElementById('tblLabel');
+  tbody.innerHTML = '';
+
+  if(view==='weekly'){
+    lbl.textContent='Weekly summary';
+    const weeks = {};
+    ss.forEach(s => {
+      const d  = new Date(s.date+'T00:00:00');
+      const dow= d.getDay()===0?6:d.getDay()-1; // Mon=0
+      const mon= new Date(d); mon.setDate(d.getDate()-dow);
+      const wk = localDs(mon);
+      if(!weeks[wk]) weeks[wk]={start:wk,count:0,cal:0,dur:0,hr:[],load:0};
+      weeks[wk].count++; weeks[wk].cal+=s.calories; weeks[wk].dur+=s.durationMinutes;
+      weeks[wk].hr.push(s.avgHR); weeks[wk].load+=s.trainingLoad;
+    });
+    Object.values(weeks).sort((a,b)=>new Date(b.start)-new Date(a.start)).forEach(w=>{
+      const tr=document.createElement('tr');
+      const avgHR=w.hr.length?(w.hr.reduce((t,x)=>t+x,0)/w.hr.length).toFixed(0):'—';
+      tr.innerHTML=`<td>Week of ${fmtSh(w.start)}</td><td>${w.count} session${w.count>1?'s':''}</td><td>${w.dur.toFixed(0)} min</td><td>${fmtN(w.cal)} kcal</td><td>${avgHR} bpm</td><td>${w.load.toFixed(1)}</td><td>—</td>`;
       tbody.appendChild(tr);
     });
+    return;
   }
 
-  function buildDetail(id) {
-    const s = ALL.find(x => x.activityId == id);
-    if (!s) return null;
-    const tr = document.createElement('tr');
-    tr.className = 's-detail-row';
-    tr.innerHTML = `<td colspan="7"><div class="s-detail-inner">
-      <div class="s-detail-item"><div class="dl">Start time</div><div class="dv">${s.startTimeLocal}</div></div>
-      <div class="s-detail-item"><div class="dl">Max HR</div><div class="dv">${s.maxHR} bpm</div></div>
-      <div class="s-detail-item"><div class="dl">Body battery</div><div class="dv">${s.bodyBatteryChange} pts</div></div>
-      <div class="s-detail-item"><div class="dl">Water loss</div><div class="dv">${s.waterEstimatedMl} ml</div></div>
-      <div class="s-detail-item"><div class="dl">Moderate intensity</div><div class="dv">${s.moderateIntensityMin} min</div></div>
-      <div class="s-detail-item"><div class="dl">Vigorous intensity</div><div class="dv">${s.vigorousIntensityMin} min</div></div>
-      <div class="s-detail-item"><div class="dl">Steps</div><div class="dv">${fmtNum(s.steps)}</div></div>
-      <div class="s-detail-item"><div class="dl">Aerobic TE</div><div class="dv">${s.aerobicTEMessage}</div></div>
-    </div></td>`;
-    return tr;
-  }
-
-  document.getElementById('sessionBody').addEventListener('click', e => {
-    const row = e.target.closest('tr.s-row');
-    if (!row) return;
-    const next = row.nextElementSibling;
-    if (next?.classList.contains('s-detail-row')) {
-      next.remove();
-      row.classList.remove('open');
-    } else {
-      document.querySelectorAll('.s-detail-row').forEach(r => r.remove());
-      document.querySelectorAll('tr.s-row.open').forEach(r => r.classList.remove('open'));
-      const det = buildDetail(row.dataset.id);
-      if (det) { row.after(det); row.classList.add('open'); }
-    }
+  lbl.textContent='Sessions';
+  const sorted=[...ss].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  sorted.forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.className='sr'; tr.dataset.id=s.activityId;
+    const sleepCell=s.priorSleepScore!=null?`${s.priorSleepScore} / 100`:'—';
+    tr.innerHTML=`
+      <td>${fmtD(s.date)}</td>
+      <td><span class="tbadge">🏸 ${s.activityType||'badminton'}</span></td>
+      <td>${s.durationMinutes.toFixed(0)} min</td>
+      <td>${fmtN(s.calories)} kcal</td>
+      <td>${s.avgHR} bpm</td>
+      <td>${s.trainingLoad.toFixed(1)}</td>
+      <td>${sleepCell}</td>`;
+    tbody.appendChild(tr);
   });
+}
 
-  // ─── Chart type toggle ─────────────────────────────────────────────────────
-  document.addEventListener('click', e => {
-    const btn = e.target.closest('.tbtn');
-    if (!btn) return;
-    const id   = btn.dataset.c;
-    const type = btn.dataset.t;
-    btn.closest('.chart-toggle').querySelectorAll('.tbtn')
-       .forEach(b => b.classList.toggle('active', b === btn));
-    const cfg = CFG[id];
-    if (cfg) mkChart(id, type, JSON.parse(JSON.stringify(cfg.data)), cfg.opts);
-  });
+document.getElementById('tblBody').addEventListener('click',e=>{
+  const row=e.target.closest('tr.sr');
+  if(!row) return;
+  const nx=row.nextElementSibling;
+  if(nx?.classList.contains('det-row')){nx.remove();row.classList.remove('open');return;}
+  document.querySelectorAll('.det-row').forEach(r=>r.remove());
+  document.querySelectorAll('tr.sr.open').forEach(r=>r.classList.remove('open'));
+  const s=SESS.find(x=>x.activityId==row.dataset.id);
+  if(!s) return;
+  const det=document.createElement('tr');
+  det.className='det-row';
+  det.innerHTML=`<td colspan="7"><div class="det-inner">
+    <div class="di"><div class="dl">Start</div><div class="dv">${s.startTimeLocal}</div></div>
+    <div class="di"><div class="dl">Max HR</div><div class="dv">${s.maxHR} bpm</div></div>
+    <div class="di"><div class="dl">Body battery cost</div><div class="dv">${s.bodyBatteryChange} pts</div></div>
+    <div class="di"><div class="dl">Water loss (est.)</div><div class="dv">${s.waterEstimatedMl} ml</div></div>
+    <div class="di"><div class="dl">Vigorous intensity</div><div class="dv">${s.vigorousIntensityMin} min</div></div>
+    <div class="di"><div class="dl">Aerobic TE</div><div class="dv">${s.aerobicTE} — ${s.aerobicTEMessage}</div></div>
+    <div class="di"><div class="dl">Prior sleep score</div><div class="dv">${s.priorSleepScore??'—'} / 100</div></div>
+    <div class="di"><div class="dl">Prior body battery</div><div class="dv">${s.priorBodyBattery??'—'} pts charged</div></div>
+  </div></td>`;
+  row.after(det); row.classList.add('open');
+});
 
-  // ─── Filter ────────────────────────────────────────────────────────────────
-  document.addEventListener('click', e => {
-    const tab = e.target.closest('.ftab:not(.dim)');
-    if (!tab) return;
-    document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    FILTERED = tab.dataset.filter === 'all'
-      ? [...ALL]
-      : ALL.filter(s => s.activityType === tab.dataset.filter);
-    renderAll();
-  });
+// ── Toggle (chart type) ──────────────────────────────────────────────────────
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.tb');
+  if(!btn) return;
+  const id=btn.dataset.c, type=btn.dataset.t;
+  btn.closest('.tog').querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',b===btn));
+  const c=CFG[id];
+  if(c) mk(id,type,JSON.parse(JSON.stringify(c.data)),c.opts);
+});
 
-  // ─── Dates ─────────────────────────────────────────────────────────────────
-  function setDates(ss) {
-    if (!ss.length) return;
-    const latest = ss.reduce((m, s) => new Date(s.date) > new Date(m.date) ? s : m);
-    const txt = `Updated ${fmtDate(latest.date)}`;
-    document.getElementById('headerMeta').textContent  = txt;
-    document.getElementById('footerDate').textContent  = txt;
+// ── Filter ───────────────────────────────────────────────────────────────────
+document.getElementById('actFilter').addEventListener('click',e=>{
+  const btn=e.target.closest('.pill:not(.dim)');
+  if(!btn) return;
+  document.querySelectorAll('#actFilter .pill').forEach(b=>b.classList.toggle('on',b===btn));
+  activeFilter=btn.dataset.f;
+  FILTERED=activeFilter==='all'?[...SESS]:SESS.filter(s=>s.activityType===activeFilter);
+  renderAll();
+});
+
+// ── Section tabs ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.stab').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.stab').forEach(b=>b.classList.toggle('on',b===btn));
+  activeSection=btn.dataset.s;
+  document.getElementById('perfSec').style.display  = activeSection==='perf'?'':'none';
+  document.getElementById('recovSec').style.display = activeSection==='recov'?'':'none';
+  if(activeSection==='recov') renderRecov(SLEEP, FILTERED);
+}));
+
+// ── View toggle ───────────────────────────────────────────────────────────────
+document.getElementById('viewTog').addEventListener('click',e=>{
+  const btn=e.target.closest('.pill');
+  if(!btn) return;
+  document.querySelectorAll('#viewTog .pill').forEach(b=>b.classList.toggle('on',b===btn));
+  activeView=btn.dataset.v;
+  renderTable(FILTERED, activeView);
+});
+
+// ── Render all ───────────────────────────────────────────────────────────────
+function renderAll() {
+  renderMetrics(FILTERED);
+  buildCal(FILTERED);
+  renderStage(FILTERED);
+  renderPerf(FILTERED);
+  renderTable(FILTERED, activeView);
+  const latest=FILTERED.length?FILTERED.reduce((m,s)=>new Date(s.date)>new Date(m.date)?s:m):null;
+  if(latest){
+    const txt='Updated '+fmtD(latest.date);
+    document.getElementById('navMeta').textContent=txt;
+    document.getElementById('footDate').textContent=txt;
   }
+}
 
-  // ─── Render all ────────────────────────────────────────────────────────────
-  function renderAll() {
-    renderStats(FILTERED);
-    buildHeatmap(FILTERED);
-    renderStage(FILTERED);
-    renderCharts(FILTERED);
-    renderTable(FILTERED);
-    setDates(FILTERED);
-  }
-
-  // ─── Boot ──────────────────────────────────────────────────────────────────
-  fetch(`data/sessions.json?v=${Date.now()}`)
-    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => {
-      ALL = data;
-      FILTERED = [...ALL];
-      renderAll();
-    })
-    .catch(() => {
-      document.querySelector('.hero').innerHTML =
-        '<p style="color:var(--text-3);padding:40px 0">Failed to load sessions.json</p>';
-    });
-  </script>
+// ── Boot ─────────────────────────────────────────────────────────────────────
+Promise.all([
+  fetch(`data/sessions.json?v=${Date.now()}`).then(r=>r.json()),
+  fetch(`data/sleep.json?v=${Date.now()}`).then(r=>r.json()).catch(()=>[])
+]).then(([sess,sleep])=>{
+  SESS    = sess;
+  SLEEP   = sleep;
+  FILTERED= [...SESS];
+  renderAll();
+}).catch(err=>{
+  document.querySelector('.w').innerHTML='<p style="padding:40px 0;color:var(--t3)">Failed to load data.</p>';
+});
+</script>
 </body>
 </html>

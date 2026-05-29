@@ -166,13 +166,61 @@ footer{text-align:center;padding:16px 0 24px;font-size:11px;color:var(--t3);bord
 /* ── MOBILE ── */
 @media(max-width:700px){
   .w{padding:0 16px}
-  .charts-grid{grid-template-columns:1fr}
-  .cc.full-width{grid-column:1}
+
+  /* Calendar: clip overflow — JS will reduce week count */
+  .cal-sec{overflow-x:hidden}
+  .cal-body{min-width:0;overflow:hidden}
+
+  /* Metrics: 2×3 grid */
   .metrics-strip{flex-wrap:wrap}
   .metric{flex:0 0 50%;border-right:none;border-bottom:1px solid var(--bl);padding:12px 0}
+  .metric:nth-child(5),.metric:nth-child(6){border-bottom:none}
   .metric::after{display:none}
+  .m-num{font-size:22px}
+  .metric:first-child .m-num{font-size:26px}
+
+  /* Controls: stack tabs above, activity+view on same row */
+  .controls{gap:8px 6px}
+  .ctrl-spacer{display:none}
+  .sec-tabs{order:-1;width:100%;display:flex;border-bottom:1px solid var(--bl)}
+  .stab{flex:1;text-align:center;font-size:12px;padding:5px 8px 7px}
+  #actFilter{order:0;flex-wrap:wrap;gap:2px}
+  #actFilter .pill{font-size:11px;padding:5px 10px}
+  #viewTog{order:1;margin-left:auto}
+
+  /* Charts */
+  .charts-grid{grid-template-columns:1fr}
+  .cc.full-width{grid-column:1}
+  .cc{padding:14px}
+  .cc-box{height:150px}
+
+  /* Zone legend: WHO target wraps below */
+  .zlgd{gap:6px 12px}
+  .zlgd .zi:last-child{margin-left:0}
+
+  /* Session table: hide lower-priority columns */
   .det-inner{grid-template-columns:1fr 1fr}
   thead th:nth-child(n+5),tbody td:nth-child(n+5){display:none}
+
+  /* Stage tagline can wrap */
+  .s-tagline{white-space:normal;overflow:visible;font-size:11px}
+}
+
+/* Touch: tap-to-show tooltips on heatmap */
+@media(hover:none){
+  .hc:hover .hc-tip{opacity:0}
+  .hc-tip.show{
+    opacity:1!important;
+    pointer-events:auto;
+    position:fixed;
+    bottom:16px;
+    left:50%;
+    transform:translateX(-50%);
+    white-space:nowrap;
+    font-size:11px;
+    z-index:999;
+  }
+  .hc-tip.show::after{display:none}
 }
 </style>
 </head>
@@ -421,7 +469,7 @@ Chart.defaults.scale.grid.drawBorder  = false;
 Chart.defaults.elements.bar.borderRadius = 4;
 Chart.defaults.elements.bar.borderWidth  = 0;
 Chart.defaults.elements.line.tension     = 0.3;
-Chart.defaults.elements.point.radius     = 3;
+Chart.defaults.elements.point.radius     = window.innerWidth <= 700 ? 2 : 3;
 Chart.defaults.elements.point.hoverRadius = 5;
 Chart.defaults.elements.point.backgroundColor = '#1A7F4B';
 Chart.defaults.elements.point.borderColor     = '#1A7F4B';
@@ -477,7 +525,9 @@ function buildCal(sessions) {
     byDate[k].dur += s.durationMinutes;
   });
 
-  const WEEKS = 52;
+  const isMob = window.innerWidth <= 700;
+  const WEEKS = isMob ? 26 : 52;
+  const GAP   = isMob ? 1 : 2;
 
   // Start: Monday of current week, go back WEEKS-1 weeks
   const today = new Date(); today.setHours(0,0,0,0);
@@ -490,10 +540,10 @@ function buildCal(sessions) {
 
   // Compute dynamic cell size based on container width
   const calBody = document.querySelector('.cal-body');
-  const containerW = calBody.offsetWidth || 1000;
-  const GAP = 2;
-  const COL = Math.floor(containerW / WEEKS);
-  const CELL = Math.max(10, COL - GAP);
+  const containerW = calBody.offsetWidth || 600;
+  // Fit all weeks exactly: COL = total_width / weeks, CELL = COL - GAP
+  const COL  = containerW / WEEKS;
+  const CELL = Math.max(isMob ? 7 : 10, Math.floor(COL) - GAP);
   
   // Set grid dimensions dynamically
   grid.style.gap = `${GAP}px`;
@@ -644,7 +694,7 @@ const BASE = {
   responsive:true, maintainAspectRatio:false,
   animation:{duration:500,easing:'easeOutQuart'},
   scales:{
-    x:{grid:{display:false},ticks:{maxRotation:0}},
+    x:{grid:{display:false},ticks:{maxRotation:0, autoSkip:true, maxTicksLimit: window.innerWidth<=700 ? 5 : 12}},
     y:{beginAtZero:true}
   }
 };
@@ -1014,6 +1064,25 @@ function renderAll() {
     document.getElementById('navMeta').textContent=txt;
     document.getElementById('footDate').textContent=txt;
   }
+}
+
+// ── Touch tooltips for heatmap ─────────────────────────────────────────────
+if('ontouchstart' in window) {
+  let activeTip = null;
+  document.getElementById('calGrid').addEventListener('touchstart', e => {
+    const cell = e.target.closest('.hc');
+    if(activeTip) { activeTip.classList.remove('show'); activeTip = null; }
+    if(cell) {
+      const tip = cell.querySelector('.hc-tip');
+      if(tip) { tip.classList.add('show'); activeTip = tip; e.preventDefault(); }
+    }
+  }, {passive:false});
+  // Tap elsewhere to dismiss
+  document.addEventListener('touchstart', e => {
+    if(activeTip && !e.target.closest('#calGrid')) {
+      activeTip.classList.remove('show'); activeTip = null;
+    }
+  }, {passive:true});
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────

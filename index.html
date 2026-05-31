@@ -281,6 +281,8 @@ footer{text-align:center;padding:16px 0 24px;font-size:11px;color:var(--t3);bord
     <div class="pill-group" id="actFilter">
       <button class="pill on" data-f="all">All</button>
       <button class="pill" data-f="badminton">🏸 Badminton</button>
+      <button class="pill" data-f="strength_training">💪 Strength</button>
+      <button class="pill" data-f="indoor_cardio">🏃 Cardio</button>
       <button class="pill dim" data-f="walking">🚶 Walking</button>
     </div>
     <div class="ctrl-spacer"></div>
@@ -952,7 +954,7 @@ function renderTable(ss, view) {
     const sleepCell=s.priorSleepScore!=null?`${s.priorSleepScore} / 100`:'—';
     tr.innerHTML=`
       <td>${fmtD(s.date)}<span class="row-arrow">▸</span></td>
-      <td><span class="tbadge">🏸 ${s.activityType||'badminton'}</span></td>
+      <td><span class="tbadge">${{badminton:'🏸 Badminton',strength_training:'💪 Strength',indoor_cardio:'🏃 Cardio',walking:'🚶 Walking'}[s.activityType]||'🏋️ '+s.activityType||'Fitness'}</span></td>
       <td>${s.durationMinutes.toFixed(0)} min</td>
       <td>${fmtN(s.calories)} kcal</td>
       <td>${s.avgHR} bpm</td>

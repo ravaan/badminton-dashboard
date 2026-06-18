@@ -1,5 +1,23 @@
 [
   {
+    "date": "2026-06-16",
+    "activityId": 23289653767,
+    "startTime": "19:54",
+    "durationMin": 67.69,
+    "calories": 578,
+    "avgHr": 121,
+    "maxHr": 144,
+    "trainingLoad": 31.6,
+    "aerobicTE": 2.2,
+    "anaerobicTE": 0.2,
+    "bodyBatteryChange": -5,
+    "steps": 1640,
+    "moderateIntensityMin": 44,
+    "vigorousIntensityMin": 18,
+    "waterEstimatedMl": 854,
+    "venue": "Gametheory, HSR Layout"
+  },
+  {
     "date": "2026-06-11",
     "activityId": 23213016157,
     "startTime": "19:59",

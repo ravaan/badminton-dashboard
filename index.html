@@ -233,7 +233,7 @@ footer{text-align:center;padding:16px 0 24px;font-size:11px;color:var(--t3);bord
   </div>
 </nav>
 
-<div class="w">
+<div class="w" id="mainContent">
 
   <!-- CALENDAR -->
   <section class="cal-sec">
@@ -769,7 +769,7 @@ function renderPerf(ss) {
 
   mk('cLoad','line',{labels:lbl,datasets:[{data:s.map(x=>+x.trainingLoad.toFixed(1)),borderColor:grn,backgroundColor:'rgba(26,127,75,.07)',fill:true}]},BASE);
   mk('cCal', 'bar', {labels:lbl,datasets:[{data:s.map(x=>x.calories),backgroundColor:grn}]},{...BASE,scales:{...BASE.scales,y:{beginAtZero:true,title:{display:false}}}});
-  mk('cDur', 'line',{labels:lbl,datasets:[{data:s.map(x=>+x.durationMinutes.toFixed(1)),borderColor:grn,backgroundColor:'rgba(26,127,75,.07)',fill:true}]},BASE);
+  mk('cDur', 'line',{labels:lbl,datasets:[{data:s.map(x=>+(x.durationMinutes||0).toFixed(1)),borderColor:grn,backgroundColor:'rgba(26,127,75,.07)',fill:true}]},BASE);
   mk('cZones','bar',{labels:lbl,datasets:[
     {data:s.map(x=>+((x.hrZone1Sec||0)/60).toFixed(1)),backgroundColor:'var(--z1)',label:'Z1'},
     {data:s.map(x=>+((x.hrZone2Sec||0)/60).toFixed(1)),backgroundColor:'var(--z2)',label:'Z2'},
@@ -955,10 +955,10 @@ function renderTable(ss, view) {
     tr.innerHTML=`
       <td>${fmtD(s.date)}<span class="row-arrow">▸</span></td>
       <td><span class="tbadge">${{badminton:'🏸 Badminton',strength_training:'💪 Strength',indoor_cardio:'🏃 Cardio',walking:'🚶 Walking'}[s.activityType]||'🏋️ '+s.activityType||'Fitness'}</span></td>
-      <td>${s.durationMinutes.toFixed(0)} min</td>
+      <td>${(s.durationMinutes||0).toFixed(0)} min</td>
       <td>${fmtN(s.calories)} kcal</td>
-      <td>${s.avgHR} bpm</td>
-      <td>${s.trainingLoad.toFixed(1)}</td>
+      <td>${(s.avgHR||s.avgHr||0)} bpm</td>
+      <td>${(s.trainingLoad||0).toFixed(1)}</td>
       <td>${sleepCell}</td>`;
     tbody.appendChild(tr);
   });
@@ -1099,7 +1099,8 @@ Promise.all([
   // Rebuild calendar on resize for dynamic sizing
   window.addEventListener('resize', () => buildCal(FILTERED));
 }).catch(err=>{
-  document.querySelector('.w').innerHTML='<p style="padding:40px 0;color:var(--t3)">Failed to load data.</p>';
+  console.error('Dashboard load error:', err);
+  document.getElementById('mainContent').innerHTML='<p style="padding:40px 0;color:var(--t3)">Failed to load data.</p>';
 });
 </script>
 </body>

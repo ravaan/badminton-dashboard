@@ -283,7 +283,9 @@ footer{text-align:center;padding:16px 0 24px;font-size:11px;color:var(--t3);bord
       <button class="pill" data-f="badminton">🏸 Badminton</button>
       <button class="pill" data-f="strength_training">💪 Strength</button>
       <button class="pill" data-f="indoor_cardio">🏃 Cardio</button>
-      <button class="pill dim" data-f="walking">🚶 Walking</button>
+      <button class="pill" data-f="lap_swimming">🏊 Swimming</button>
+      <button class="pill" data-f="open_water_swimming">🌊 Open Water</button>
+      <button class="pill" data-f="daily">🚶 Daily</button>
     </div>
     <div class="ctrl-spacer"></div>
     <!-- Section tabs -->
@@ -424,12 +426,97 @@ footer{text-align:center;padding:16px 0 24px;font-size:11px;color:var(--t3);bord
     </div>
   </section>
 
-  <!-- WALKING EMPTY STATE -->
+  <!-- DAILY ACTIVITY SECTION -->
   <section class="content" id="walkingSec" style="display:none">
-    <div class="empty-state">
-      <div class="empty-icon">🚶</div>
-      <div class="empty-title">No walking sessions yet</div>
-      <div class="empty-sub">Walking sessions will appear here automatically when synced from Garmin</div>
+
+    <!-- Daily metrics strip -->
+    <div class="metrics-sec" style="border-top:1px solid var(--bl);margin:0 -0px 0">
+      <div class="metrics-strip" id="dailyMetricStrip">
+        <div class="metric"><div class="m-lbl">Avg Steps/Day</div><div class="m-num" id="dMAvgSteps">—</div><div class="m-ctx">last 30 days</div></div>
+        <div class="metric"><div class="m-lbl">Best Step Day</div><div class="m-num" id="dMBestSteps">—</div><div class="m-ctx" id="dMBestStepsDate"></div></div>
+        <div class="metric"><div class="m-lbl">Avg Active Cal</div><div class="m-num" id="dMAvgCal">—</div><div class="m-ctx">kcal/day</div></div>
+        <div class="metric"><div class="m-lbl">Avg Resting HR</div><div class="m-num" id="dMAvgRHR">—</div><div class="m-ctx">bpm</div></div>
+        <div class="metric"><div class="m-lbl">Total Distance</div><div class="m-num" id="dMDist">—</div><div class="m-ctx">km in 30 days</div></div>
+      </div>
+    </div>
+
+    <div class="charts-grid" style="margin-top:16px">
+
+      <!-- Steps heatmap -->
+      <div class="cc full-width">
+        <div class="cc-head">
+          <div class="cc-title">Steps heatmap — last 30 days</div>
+        </div>
+        <div class="cc-ins" id="iStepsHeat">—</div>
+        <div id="stepsHeatWrap" style="overflow-x:auto">
+          <div style="display:flex;gap:6px;align-items:flex-start;min-width:0">
+            <div style="padding-top:18px;width:32px;flex-shrink:0">
+              <div id="dailyCalDays" style="display:grid;gap:2px;font-size:10px;color:var(--t3);line-height:1"></div>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div id="dailyCalMonths" style="position:relative;height:16px;margin-bottom:4px"></div>
+              <div id="dailyCalGrid" style="display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;margin-top:10px;font-size:11px;color:var(--t3)">
+          <span style="margin-right:auto" id="stepsHeatStats">—</span>
+          <div style="display:flex;align-items:center;gap:3px">
+            <span>Low</span>
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--h0)"></div>
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--h1)"></div>
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--h2)"></div>
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--h3)"></div>
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--h4)"></div>
+            <span>8k+</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steps bar chart -->
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Daily steps</div></div>
+        <div class="cc-ins" id="iStepsBar">—</div>
+        <div class="cc-box"><canvas id="cSteps"></canvas></div>
+      </div>
+
+      <!-- Distance line chart -->
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Daily distance (km)</div></div>
+        <div class="cc-ins" id="iDist">—</div>
+        <div class="cc-box"><canvas id="cDist"></canvas></div>
+      </div>
+
+      <!-- Calorie stacked bar -->
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Calorie burn (active + BMR)</div></div>
+        <div class="cc-ins" id="iDailyCal">—</div>
+        <div class="cc-box"><canvas id="cDailyCal"></canvas></div>
+        <div class="zlgd" style="margin-top:8px">
+          <div class="zi"><div class="zd" style="background:var(--grn)"></div>Active</div>
+          <div class="zi"><div class="zd" style="background:#D1D5DB"></div>BMR</div>
+        </div>
+      </div>
+
+      <!-- Resting HR trend -->
+      <div class="cc">
+        <div class="cc-head"><div class="cc-title">Resting HR trend</div></div>
+        <div class="cc-ins" id="iRestHR">—</div>
+        <div class="cc-box"><canvas id="cRestHR"></canvas></div>
+      </div>
+
+      <!-- Stress level bar -->
+      <div class="cc full-width">
+        <div class="cc-head"><div class="cc-title">Daily stress level</div></div>
+        <div class="cc-ins" id="iStress">—</div>
+        <div class="cc-box"><canvas id="cStress"></canvas></div>
+        <div class="zlgd" style="margin-top:8px">
+          <div class="zi"><div class="zd" style="background:#1A7F4B"></div>&lt;25 Calm</div>
+          <div class="zi"><div class="zd" style="background:#F59E0B"></div>25–50 Moderate</div>
+          <div class="zi"><div class="zd" style="background:#EF4444"></div>&gt;50 High</div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -446,15 +533,8 @@ footer{text-align:center;padding:16px 0 24px;font-size:11px;color:var(--t3);bord
     </table>
   </div>
 
-  <!-- WALKING TABLE EMPTY -->
-  <div class="tbl-wrap" id="tblWalkWrap" style="display:none">
-    <div class="tbl-label">Sessions</div>
-    <div class="empty-state" style="padding:40px 20px">
-      <div class="empty-icon">🚶</div>
-      <div class="empty-title">No walking sessions yet</div>
-      <div class="empty-sub">Walking sessions will appear here automatically when synced from Garmin</div>
-    </div>
-  </div>
+  <!-- DAILY TABLE PLACEHOLDER (hidden; daily tab has its own charts) -->
+  <div class="tbl-wrap" id="tblWalkWrap" style="display:none"></div>
 
 </div><!-- /w -->
 
@@ -477,7 +557,7 @@ Chart.defaults.elements.point.backgroundColor = '#1A7F4B';
 Chart.defaults.elements.point.borderColor     = '#1A7F4B';
 
 // ── State ───────────────────────────────────────────────────────────────────
-let SESS = [], SLEEP = [], FILTERED = [];
+let SESS = [], SLEEP = [], FILTERED = [], DAILY = [];
 let activeFilter = 'all', activeSection = 'perf', activeView = 'daily';
 const CFG = {};
 
@@ -954,7 +1034,7 @@ function renderTable(ss, view) {
     const sleepCell=s.priorSleepScore!=null?`${s.priorSleepScore} / 100`:'—';
     tr.innerHTML=`
       <td>${fmtD(s.date)}<span class="row-arrow">▸</span></td>
-      <td><span class="tbadge">${{badminton:'🏸 Badminton',strength_training:'💪 Strength',indoor_cardio:'🏃 Cardio',walking:'🚶 Walking'}[s.activityType]||'🏋️ '+s.activityType||'Fitness'}</span></td>
+      <td><span class="tbadge">${{badminton:'🏸 Badminton',strength_training:'💪 Strength',indoor_cardio:'🏃 Cardio',walking:'🚶 Walking',lap_swimming:'🏊 Swimming',open_water_swimming:'🌊 Open Water',breathwork:'💨 Breathwork'}[s.activityType]||'🏋️ '+s.activityType||'Fitness'}</span></td>
       <td>${(s.durationMinutes||0).toFixed(0)} min</td>
       <td>${fmtN(s.calories)} kcal</td>
       <td>${(s.avgHR||s.avgHr||0)} bpm</td>
@@ -1010,15 +1090,15 @@ document.getElementById('actFilter').addEventListener('click',e=>{
   document.querySelectorAll('#actFilter .pill').forEach(b=>b.classList.toggle('on',b===btn));
   activeFilter=btn.dataset.f;
   
-  // Handle walking tab (empty state)
-  if(activeFilter === 'walking') {
-    // Show walking empty state
+  // Handle daily tab
+  if(activeFilter === 'daily' || activeFilter === 'walking') {
     document.getElementById('perfSec').style.display = 'none';
     document.getElementById('recovSec').style.display = 'none';
     document.getElementById('walkingSec').style.display = '';
     document.getElementById('tblWrap').style.display = 'none';
-    document.getElementById('tblWalkWrap').style.display = '';
+    document.getElementById('tblWalkWrap').style.display = 'none';
     document.querySelector('.stage-wrap').style.display = 'none';
+    if(DAILY.length) renderDaily(DAILY);
     return;
   }
   
@@ -1036,7 +1116,7 @@ document.getElementById('actFilter').addEventListener('click',e=>{
 
 // ── Section tabs ─────────────────────────────────────────────────────────────
 document.querySelectorAll('.stab').forEach(btn=>btn.addEventListener('click',()=>{
-  if(activeFilter === 'walking') return; // Don't switch sections in walking mode
+  if(activeFilter === 'daily' || activeFilter === 'walking') return; // Don't switch sections in daily mode
   document.querySelectorAll('.stab').forEach(b=>b.classList.toggle('on',b===btn));
   activeSection=btn.dataset.s;
   document.getElementById('perfSec').style.display  = activeSection==='perf'?'':'none';
@@ -1088,12 +1168,222 @@ if('ontouchstart' in window) {
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
+
+// ── Daily Activity ────────────────────────────────────────────────────────────
+function fmtDateShort(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+}
+
+function stepsHeatColor(steps) {
+  if(!steps || steps < 2000) return 'var(--h0)';
+  if(steps < 4000) return 'var(--h1)';
+  if(steps < 6000) return 'var(--h2)';
+  if(steps < 8000) return 'var(--h3)';
+  return 'var(--h4)';
+}
+
+function buildStepsHeatmap(daily) {
+  const grid    = document.getElementById('dailyCalGrid');
+  const months  = document.getElementById('dailyCalMonths');
+  const daysEl  = document.getElementById('dailyCalDays');
+  const stats   = document.getElementById('stepsHeatStats');
+  if(!grid) return;
+  grid.innerHTML = months.innerHTML = daysEl.innerHTML = '';
+
+  const byDate = {};
+  daily.forEach(d => { byDate[d.date] = d; });
+
+  const WEEKS = 5;
+  const GAP   = 2;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dow   = today.getDay();
+  const daysToMon = dow === 0 ? 6 : dow - 1;
+  const thisMon = new Date(today); thisMon.setDate(today.getDate() - daysToMon);
+  const start   = new Date(thisMon); start.setDate(thisMon.getDate() - (WEEKS - 1) * 7);
+
+  const wrap = document.getElementById('stepsHeatWrap');
+  const containerW = wrap ? Math.max(200, wrap.offsetWidth - 44) : 300;
+  const COL  = containerW / WEEKS;
+  const CELL = Math.max(12, Math.floor(COL) - GAP);
+
+  grid.style.gap = GAP + 'px';
+  grid.style.gridTemplateRows = 'repeat(7,' + CELL + 'px)';
+
+  const dayNames = ['Mon','','Wed','','Fri','',''];
+  daysEl.style.cssText = 'display:grid;gap:' + GAP + 'px;grid-template-rows:repeat(7,' + CELL + 'px);padding-top:18px;width:32px;flex-shrink:0;';
+  dayNames.forEach(n => {
+    const s = document.createElement('span');
+    s.textContent = n;
+    s.style.cssText = 'font-size:10px;color:var(--t3);display:flex;align-items:center;';
+    daysEl.appendChild(s);
+  });
+
+  let lastMo = -1;
+  for(let w = 0; w < WEEKS; w++) {
+    const d = new Date(start); d.setDate(start.getDate() + w * 7);
+    if(d.getMonth() !== lastMo) {
+      const lbl = document.createElement('span');
+      lbl.className = 'cal-mlbl';
+      lbl.textContent = d.toLocaleDateString('en-GB', {month:'short'});
+      lbl.style.left = (w * COL) + 'px';
+      months.appendChild(lbl);
+      lastMo = d.getMonth();
+    }
+  }
+
+  let daysOver8k = 0;
+  for(let w = 0; w < WEEKS; w++) {
+    for(let day = 0; day < 7; day++) {
+      const d = new Date(start); d.setDate(start.getDate() + w * 7 + day);
+      if(d > today) {
+        const c = document.createElement('div');
+        c.className = 'hc'; c.style.background = 'transparent';
+        grid.appendChild(c); continue;
+      }
+      const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), dy = String(d.getDate()).padStart(2,'0');
+      const key = y + '-' + mo + '-' + dy;
+      const data = byDate[key];
+      const cell = document.createElement('div');
+      cell.className = 'hc';
+      cell.style.background = stepsHeatColor(data ? data.totalSteps : 0);
+      if(data) {
+        if(data.totalSteps >= 8000) daysOver8k++;
+        const dn = d.toLocaleDateString('en-GB', {weekday:'short'});
+        const df = d.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+        const tip = document.createElement('div');
+        tip.className = 'hc-tip';
+        tip.textContent = dn + ' ' + df + ' · ' + data.totalSteps.toLocaleString() + ' steps';
+        cell.appendChild(tip);
+      }
+      grid.appendChild(cell);
+    }
+  }
+  if(stats) stats.textContent = daysOver8k + ' day' + (daysOver8k !== 1 ? 's' : '') + ' hit 8,000+ steps';
+}
+
+function renderDaily(daily) {
+  if(!daily || !daily.length) return;
+  const d = [...daily].sort((a,b) => new Date(a.date) - new Date(b.date));
+  const labels = d.map(x => fmtDateShort(x.date));
+  const grn = '#1A7F4B';
+
+  const avgSteps = Math.round(d.reduce((t,x) => t + x.totalSteps, 0) / d.length);
+  const bestDay  = d.reduce((m,x) => x.totalSteps > m.totalSteps ? x : m, d[0]);
+  const avgCal   = Math.round(d.reduce((t,x) => t + x.activeCalories, 0) / d.length);
+  const rhrDays  = d.filter(x => x.restingHR > 0);
+  const avgRHR   = rhrDays.length ? Math.round(rhrDays.reduce((t,x) => t + x.restingHR, 0) / rhrDays.length) : 0;
+  const totalDist = (d.reduce((t,x) => t + x.totalDistanceMeters, 0) / 1000).toFixed(1);
+
+  const el = id => document.getElementById(id);
+  if(el('dMAvgSteps'))    el('dMAvgSteps').textContent    = avgSteps.toLocaleString();
+  if(el('dMBestSteps'))   el('dMBestSteps').textContent   = bestDay.totalSteps.toLocaleString();
+  if(el('dMBestStepsDate')) el('dMBestStepsDate').textContent = fmtDateShort(bestDay.date);
+  if(el('dMAvgCal'))      el('dMAvgCal').textContent      = avgCal.toLocaleString();
+  if(el('dMAvgRHR'))      el('dMAvgRHR').textContent      = avgRHR + ' bpm';
+  if(el('dMDist'))        el('dMDist').textContent        = totalDist + ' km';
+
+  const whoTarget = d.filter(x => x.totalSteps >= 8000).length;
+  const stressD   = d.filter(x => x.avgStressLevel > 0);
+  const avgStress = stressD.length ? Math.round(stressD.reduce((t,x) => t + x.avgStressLevel, 0) / stressD.length) : 0;
+  const minRHR    = rhrDays.length ? rhrDays.reduce((m,x) => x.restingHR < m.restingHR ? x : m, rhrDays[0]) : null;
+
+  if(el('iStepsHeat')) el('iStepsHeat').textContent = '<2k no fill · 2-4k light · 4-6k medium · 6-8k dark · 8k+ darkest green';
+  if(el('iStepsBar'))  el('iStepsBar').textContent  = 'Avg ' + avgSteps.toLocaleString() + ' steps/day. ' + whoTarget + ' of ' + d.length + ' days hit 8,000 target.';
+  if(el('iDist'))      el('iDist').textContent      = totalDist + ' km total. Avg ' + (parseFloat(totalDist)/d.length).toFixed(1) + ' km/day.';
+  if(el('iDailyCal'))  el('iDailyCal').textContent  = 'Avg ' + avgCal.toLocaleString() + ' active kcal/day on top of ~' + Math.round(d.reduce((t,x)=>t+x.bmrCalories,0)/d.length).toLocaleString() + ' kcal BMR.';
+  if(el('iRestHR'))    el('iRestHR').textContent    = 'Avg ' + avgRHR + ' bpm.' + (minRHR ? ' Best: ' + minRHR.restingHR + ' bpm (' + fmtDateShort(minRHR.date) + ').' : '') + ' Lower is better — indicates improving fitness.';
+  if(el('iStress'))    el('iStress').textContent    = 'Avg stress: ' + avgStress + '/100. ' + (avgStress < 25 ? 'Generally calm.' : avgStress < 50 ? 'Moderate stress levels.' : 'Elevated stress — prioritise recovery.');
+
+  buildStepsHeatmap(d);
+
+  // Steps bar with 8k reference line
+  mk('cSteps', 'bar', {
+    labels,
+    datasets: [{ data: d.map(x => x.totalSteps), backgroundColor: d.map(x => x.totalSteps >= 8000 ? '#1A5C38' : grn), label: 'Steps' }]
+  }, {
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 500, easing: 'easeOutQuart' },
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+      y: { beginAtZero: true, grid: { color: '#F2F2F2' } }
+    }
+  });
+  // 8k reference line via plugin
+  const stepsChart = Chart.getChart(document.getElementById('cSteps'));
+  if(stepsChart) {
+    const refPlugin = {
+      id: 'refLine8k',
+      afterDraw(chart) {
+        const {ctx: cx, scales: {x: xs, y: ys}} = chart;
+        if(!ys) return;
+        const y = ys.getPixelForValue(8000);
+        cx.save();
+        cx.setLineDash([5,4]);
+        cx.strokeStyle = '#D97706';
+        cx.lineWidth = 1.5;
+        cx.beginPath(); cx.moveTo(xs.left, y); cx.lineTo(xs.right, y); cx.stroke();
+        cx.fillStyle = '#D97706';
+        cx.font = '9px DM Sans,sans-serif';
+        cx.fillText('8,000', xs.right - 30, y - 4);
+        cx.restore();
+      }
+    };
+    stepsChart.options._refPlugin = true;
+    // Register as inline plugin
+    stepsChart.config.plugins = stepsChart.config.plugins || [];
+    stepsChart.config.plugins.push(refPlugin);
+    stepsChart.update('none');
+  }
+
+  // Distance line
+  mk('cDist', 'line', {
+    labels,
+    datasets: [{ data: d.map(x => +(x.totalDistanceMeters/1000).toFixed(2)), borderColor: grn, backgroundColor: 'rgba(26,127,75,.07)', fill: true, label: 'km' }]
+  }, { ...BASE, scales: { x: { grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:10} }, y: { beginAtZero:true } } });
+
+  // Calorie stacked bar
+  mk('cDailyCal', 'bar', {
+    labels,
+    datasets: [
+      { data: d.map(x => Math.round(x.activeCalories)), backgroundColor: grn,      label: 'Active' },
+      { data: d.map(x => Math.round(x.bmrCalories)),    backgroundColor: '#D1D5DB', label: 'BMR'    }
+    ]
+  }, { ...BASE, scales: {
+    x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+    y: { stacked: true, beginAtZero: true }
+  }});
+
+  // Resting HR line
+  mk('cRestHR', 'line', {
+    labels,
+    datasets: [{ data: d.map(x => x.restingHR > 0 ? x.restingHR : null), borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,.07)', fill: true, label: 'RHR', spanGaps: true }]
+  }, { ...BASE, scales: { x: { grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:10} }, y: { beginAtZero: false } } });
+
+  // Stress bar
+  mk('cStress', 'bar', {
+    labels,
+    datasets: [{
+      data: d.map(x => x.avgStressLevel > 0 ? x.avgStressLevel : null),
+      backgroundColor: d.map(x => !x.avgStressLevel ? '#DDDDDD' : x.avgStressLevel < 25 ? '#1A7F4B' : x.avgStressLevel < 50 ? '#F59E0B' : '#EF4444'),
+      label: 'Stress'
+    }]
+  }, { ...BASE, scales: {
+    x: { grid:{display:false}, ticks:{maxRotation:0, autoSkip:true, maxTicksLimit:10} },
+    y: { beginAtZero: true, max: 100 }
+  }});
+}
+
 Promise.all([
   fetch(`data/sessions.json?v=${Date.now()}`).then(r=>r.json()),
-  fetch(`data/sleep.json?v=${Date.now()}`).then(r=>r.json()).catch(()=>[])
-]).then(([sess,sleep])=>{
+  fetch(`data/sleep.json?v=${Date.now()}`).then(r=>r.json()).catch(()=>[]),
+  fetch(`data/daily.json?v=${Date.now()}`).then(r=>r.json()).catch(()=>[])
+]).then(([sess,sleep,daily])=>{
   SESS    = sess;
   SLEEP   = sleep;
+  DAILY   = daily;
   FILTERED= [...SESS];
   renderAll();
   // Rebuild calendar on resize for dynamic sizing

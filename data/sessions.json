@@ -1,5 +1,18 @@
 [
   {
+    "activityId": "24444724555",
+    "activityType": "badminton",
+    "date": "2026-09-21",
+    "startTimeLocal": "2026-09-21 20:12:01",
+    "durationMinutes": 55.5,
+    "calories": 591.0,
+    "avgHR": 132.0,
+    "maxHR": 155.0,
+    "aerobicTE": 2.700000047683716,
+    "anaerobicTE": 1.5,
+    "trainingLoad": 66.361328125
+  },
+  {
     "activityId": 23608754703,
     "activityType": "badminton",
     "date": "2026-07-15",
